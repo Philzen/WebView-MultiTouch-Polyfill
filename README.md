@@ -13,8 +13,8 @@ A Polyfill example to enable multitouch functionality in Android 2.x HTML 5 Apps
 
 WebView MultiTouch PolyFill (WMP) is basically a few lines of Android java code which register touch events on an Android.WebKit.View and pass them on into the HTML Apps' DOM via javascript calls. The example project compiles against Android 2.3.3 (API 10), but the polyfill technique employed should work on all Android 2.x Devices. That being said - i personnally only own a API 10 device, so it'd be great if you folks out there could test on other (earlier) devices as well.
 
-Roadmap
--------
+## Roadmap
+
 
 v0.1
 Is just going to be the proof of concept, a small running HTML5 recognizing more than one tap at once
