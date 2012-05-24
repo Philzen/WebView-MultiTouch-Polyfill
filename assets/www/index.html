@@ -1,0 +1,114 @@
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html>
+	<head>
+		<title></title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<style type="text/css">
+			div {
+				padding-bottom: 4px;
+				margin-bottom: 4px;
+				border-bottom: 1px solid black;
+			}
+
+			.not-ok {
+				color: red;
+			}
+
+			.ok {
+				color: green;
+			}
+
+			#debug {
+				font-family: monospace;
+				position: absolute;
+				bottom: 0;
+				height: 40%;
+				width: 100%;
+				font-size: 80%;
+				color: darkorange;
+				overflow-y: scroll;
+			}
+
+			#success {
+				border: darkgreen 2px solid;
+				border-radius: 4px;
+				background-color: green;
+				color: #fff;
+			}
+
+			.hidden {
+				display: none;
+			}
+		</style>
+		<script type="text/javascript">
+			var tapCount = 0;
+			var maxTapCount = 0;
+
+			function tellJsWorking() {
+				divs.js.setAttribute('class', 'ok');
+				divs.js.textContent = 'Javascript is working!';
+			}
+
+			function tellInjectionWorking() {
+				divs.inject.setAttribute('class', 'ok');
+				divs.inject.textContent = 'Injection of Javascript from Java Code is working !';
+			}
+
+			function incrementTapCount() {
+				++tapCount;
+				updateTapCount();
+			}
+
+			function decrementTapCount() {
+				--tapCount;
+				updateTapCount();
+			}
+
+			function updateTapCount() {
+				if (tapCount > 0)
+					divs.tap.setAttribute('class', 'ok');
+				else
+					divs.tap.removeAttribute('class');
+
+				if (tapCount > maxTapCount)
+					maxTapCount = tapCount;
+				divs.tap.textContent = 'Taps registered: ' + tapCount + ' (record: ' + maxTapCount + ')';
+
+				if (maxTapCount > 1)
+					divs.success.setAttribute('class', 'ok');
+			}
+
+			function debug(text, startNewLog)
+			{
+				if (startNewLog)
+					return divs.debug.textContent = text;
+
+				return divs.debug.innerHTML = text + '<br />' + divs.debug.innerHTML;
+			}
+		</script>
+
+	</head>
+	<body>
+		<div>Hello World.</div>
+		<div id="test-js" class="bad">Javascript is not enabled your WebView :(</div>
+		<div id="test-inject" class="hidden bad">Injection of Javascript from Java Code is not working :(</div>
+		<div id="test-tap" class="hidden"></div>
+		<div id="success" class="hidden">Fantastic - Multitouch recognised on webview!</div>
+		<div id="debug"></div>
+		<script type="text/javascript">
+			var divs =  {
+				js: document.getElementById('test-js'),
+				inject: document.getElementById('test-inject'),
+				tap: document.getElementById('test-tap'),
+				debug: document.getElementById('debug'),
+				success: document.getElementById('success')
+			};
+
+			tellJsWorking();
+		</script>
+	</body>
+</html>

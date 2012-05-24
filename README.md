@@ -1,4 +1,22 @@
 webview-multitouch-polyfill
 ===========================
 
-A Polyfill to gap missing multitouch functionality in Android 2.x
+This piece of code might be what you have been long searching for, if
+o you want to develop an HTML5 app
+o you want it to work on Android 2.x
+o you'd like it to be capable to track more than one fingertap. The most well-known use for this is the pinch zoom - but you could also be developing a cool HTML5-based game that needs some two (or more) finger gestures.
+
+Many people are surprised to learn this doesn't work on many (most?) Android 2.x devices. If all of the above applies to you and you have been going crazy (like me) because you thought you now had to either implement everything in java or change your app to only work with boring single-taps, you can now smile again because you have found
+
+A Polyfill example to enable multitouch functionality in Android 2.x HTML 5 Apps
+--------------------------------------------------------------------------------
+
+WebView MultiTouch PolyFill (WMP) is basically a few lines of Android java code which register touch events on an Android.WebKit.View and pass them on into the HTML Apps' DOM via javascript calls. The example project compiles against Android 2.3.3 (API 10), but the polyfill technique employed should work on all Android 2.x Devices. That being said - i personnally only own a API 10 device, so it'd be great if you folks out there could test on other (earlier) devices as well.
+
+Roadmap
+-------
+
+v0.1
+Is just going to be the proof of concept, a small running HTML5 recognizing more than one tap at once
+
+v1.0
