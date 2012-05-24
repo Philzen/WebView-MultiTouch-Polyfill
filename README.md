@@ -20,3 +20,4 @@ v0.1
 Is just going to be the proof of concept, a small running HTML5 recognizing more than one tap at once
 
 v1.0
+The final first version of the WebClient class should be raising all standard events [http://en.wikipedia.org/wiki/DOM_events#Touch_events] one (as in "Developer" or "My OSM Map") would nowadays expect to happen in the browser.
