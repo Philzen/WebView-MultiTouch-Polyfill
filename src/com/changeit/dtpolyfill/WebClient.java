@@ -61,21 +61,25 @@ public class WebClient extends WebViewClient {
 		StringBuilder sb = new StringBuilder();
 		int action = event.getAction();
 		int actionCode = action & MotionEvent.ACTION_MASK;
-		sb.append("ACTION_").append(names[actionCode]);
+
 		if (actionCode == MotionEvent.ACTION_POINTER_DOWN
-				|| actionCode == MotionEvent.ACTION_POINTER_UP) {
-			sb.append("(pid ").append(
-					action >> MotionEvent.ACTION_POINTER_ID_SHIFT);
-			sb.append(")");
+				|| actionCode == MotionEvent.ACTION_POINTER_UP
+				|| actionCode == MotionEvent.ACTION_DOWN
+				|| actionCode == MotionEvent.ACTION_UP) {
+			sb.append("FINGER ").append(
+					(action >> MotionEvent.ACTION_POINTER_ID_SHIFT) + 1);
+			sb.append(": ");
 		}
-		sb.append("[");
+
+		sb.append("ACTION_").append(names[actionCode]);
+		sb.append(" [");
 		for (int i = 0; i < event.getPointerCount(); i++) {
 			sb.append("#").append(i);
-			sb.append("(pid ").append(event.getPointerId(i));
+			sb.append("(pid_").append(event.getPointerId(i));
 			sb.append(")=").append((int) event.getX(i));
 			sb.append(",").append((int) event.getY(i));
 			if (i + 1 < event.getPointerCount()) {
-				sb.append(";");
+				sb.append("; ");
 			}
 		}
 		sb.append("]");
