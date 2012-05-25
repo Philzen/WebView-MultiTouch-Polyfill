@@ -7,43 +7,7 @@ and open the template in the editor.
 	<head>
 		<title></title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<style type="text/css">
-			div {
-				padding-bottom: 4px;
-				margin-bottom: 4px;
-				border-bottom: 1px solid black;
-			}
-
-			.not-ok {
-				color: red;
-			}
-
-			.ok {
-				color: green;
-			}
-
-			#debug {
-				font-family: monospace;
-				position: absolute;
-				bottom: 0;
-				height: 40%;
-				width: 100%;
-				font-size: 75%;
-				color: darkgoldenrod;
-				overflow: scroll;
-			}
-
-			#success {
-				border: darkgreen 2px solid;
-				border-radius: 4px;
-				background-color: green;
-				color: #fff;
-			}
-
-			.hidden {
-				display: none;
-			}
-		</style>
+		<link href="wmp.css" rel="stylesheet" type="text/css">
 		<script type="text/javascript">
 			var tapCount = 0;
 			var maxTapCount = 0;
@@ -55,7 +19,9 @@ and open the template in the editor.
 
 			function tellInjectionWorking() {
 				divs.inject.setAttribute('class', 'ok');
-				divs.inject.textContent = 'Injection of Javascript from Java Code is working !';
+				divs.inject.textContent = 'Excellent - Injection of Javascript from Java Code is working !';
+				divs.info.removeAttribute('class');
+				divs.info.textContent = 'Now put 1+ fingers on the screen to see how many your device recognises.';
 			}
 
 			function incrementTapCount() {
@@ -63,52 +29,55 @@ and open the template in the editor.
 				updateTapCount();
 			}
 
-			function decrementTapCount() {
-				--tapCount;
-				updateTapCount();
+		function decrementTapCount() {
+			--tapCount;
+			updateTapCount();
+		}
+
+		function updateTapCount() {
+			if (tapCount > 0)
+				divs.tap.setAttribute('class', 'ok');
+
+			if (tapCount > maxTapCount)
+				maxTapCount = tapCount;
+
+			divs.tap.innerHTML = 'Taps registered: ' + tapCount + '<ul><li>High score: ' + maxTapCount + ' taps</li></ul>';
+
+			if (maxTapCount > 1) {
+				divs.info.setAttribute('class', 'awesome');
+				divs.info.textContent = '>2 parallel taps registered! See high scores above.';
 			}
+		}
 
-			function updateTapCount() {
-				if (tapCount > 0)
-					divs.tap.setAttribute('class', 'ok');
-				else
-					divs.tap.removeAttribute('class');
+		function debug(text, startNewLog)
+		{
+			if (startNewLog)
+				return divs.debug.textContent = text;
 
-				if (tapCount > maxTapCount)
-					maxTapCount = tapCount;
-				divs.tap.textContent = 'Taps registered: ' + tapCount + ' (record: ' + maxTapCount + ')';
-
-				if (maxTapCount > 1)
-					divs.success.setAttribute('class', 'ok');
-			}
-
-			function debug(text, startNewLog)
-			{
-				if (startNewLog)
-					return divs.debug.textContent = text;
-
-				return divs.debug.innerHTML = text + '<br />' + divs.debug.innerHTML;
-			}
+			return divs.debug.innerHTML = text + '<br />' + divs.debug.innerHTML;
+		}
 		</script>
 
 	</head>
 	<body>
-		<div>Hello World.</div>
-		<div id="test-js" class="bad">Javascript is not enabled your WebView :(</div>
-		<div id="test-inject" class="hidden bad">Injection of Javascript from Java Code is not working :(</div>
-		<div id="test-tap" class="hidden"></div>
-		<div id="success" class="hidden">Fantastic - Multitouch recognised on webview!</div>
+		<ul>
+			<li class="ok">Greetings, Earthling!</li>
+			<li id="test-js" class="bad">Javascript is not enabled your WebView :(</li>
+			<li id="test-inject" class="hidden bad">Injection of Javascript from Java Code is not working :(</li>
+			<li id="test-tap" class="hidden"></li>
+		</ul>
+		<div id="info-wrapper"><div id="info" class="hidden"></div></div>
 		<div id="debug"></div>
 		<script type="text/javascript">
-			var divs =  {
-				js: document.getElementById('test-js'),
-				inject: document.getElementById('test-inject'),
-				tap: document.getElementById('test-tap'),
-				debug: document.getElementById('debug'),
-				success: document.getElementById('success')
-			};
+		var divs =  {
+			js: document.getElementById('test-js'),
+			inject: document.getElementById('test-inject'),
+			tap: document.getElementById('test-tap'),
+			debug: document.getElementById('debug'),
+			info: document.getElementById('info')
+		};
 
-			tellJsWorking();
+		tellJsWorking();
 		</script>
 	</body>
 </html>
