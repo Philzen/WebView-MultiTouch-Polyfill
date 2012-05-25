@@ -15,11 +15,8 @@ public class MainActivity extends Activity
 		setContentView(R.layout.main);
 
 		WebView webview = (WebView) this.findViewById(R.id.webView);
-//		webview.getSettings().setSupportZoom(true);
-
 		webview.setWebViewClient(new WebClient());
 		webview.getSettings().setJavaScriptEnabled(true);
-		webview.getSettings().setBuiltInZoomControls(true);
 		webview.loadUrl("file:///android_asset/www/index.html");
     }
 }
