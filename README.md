@@ -17,9 +17,9 @@ WebView MultiTouch PolyFill (WMP) is basically a few lines of Android java code 
 
 ### Roadmap
 
-**v0.1** - <strike>in a couple of days</strike> DONE
+**v0.1** - ~~in a couple of days~~ DONE
 
-<strike>Is just going to be</strike> the proof of concept, a small running HTML5 recognizing more than one tap at once
+Is just ~~going to be~~ the proof of concept, a small running HTML5 recognizing more than one tap at once
 
 **v0.2** - hopefully soon
 
