@@ -16,8 +16,15 @@ public class MainActivity extends Activity
 		WebView webview = new WebView(this);
 		webview.setWebViewClient(new WebClient());
 		webview.getSettings().setJavaScriptEnabled(true);
+		webview.setVerticalScrollBarEnabled(false);
+		webview.setHorizontalScrollBarEnabled(false);
 		webview.loadUrl("file:///android_asset/www/index.html");
-		
+
+/**
+ * Possible test pages to call instead of assets/www/index.html:
+ * http://inserthtml.com/demo/mobile-touch/
+ */
+
 		setContentView(webview);
     }
 }
