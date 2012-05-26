@@ -1,9 +1,9 @@
-package com.changeit.dtpolyfill;
+package com.changeit.wmpolyfill;
 
 import android.app.Activity;
 import android.webkit.WebView;
 import android.os.Bundle;
-import com.changeit.dtpolyfill.WebClient;
+import com.changeit.wmpolyfill.WebClient;
 
 public class MainActivity extends Activity
 {

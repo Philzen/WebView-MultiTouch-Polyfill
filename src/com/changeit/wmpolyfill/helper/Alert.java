@@ -1,4 +1,4 @@
-package com.changeit.dtpolyfill.helper;
+package com.changeit.wmpolyfill.helper;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
