@@ -1,3 +1,5 @@
+![PolyFill Proof of Concept on HTC Desire Z](http://phil.timoessner.de/wmp/wmp.png)
+
 This piece of code is for you, if
 * you want to develop an HTML5 app
 * you want it to work cross-platform including Android 2.x
