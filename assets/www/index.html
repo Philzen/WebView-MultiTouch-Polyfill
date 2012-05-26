@@ -20,11 +20,13 @@ and open the template in the editor.
 				divs.js.textContent = 'Javascript is working!';
 			}
 
-			function tellInjectionWorking(deviceInfo) {
+			function tellInjectionWorking(deviceInfo, androidInfo) {
 				divs.inject.setAttribute('class', 'ok');
 				divs.inject.innerHTML = 'Injection of Javascript from Android Code works!';
 				if (deviceInfo.length > 0)
-					divs.inject.innerHTML += '<br/>Device Info received from android.os.Build.*:<br/>' + deviceInfo;
+					divs.inject.innerHTML += '<br/>Device Info read from android.os.Build:<br/>'
+							+ '<span style="font-family: monospace">' + deviceInfo + '<br/>'
+							+ androidInfo +'</span>';
 
 				divs.info.removeAttribute('class');
 				divs.info.textContent = 'Now put 1+ fingers on the screen to see how many your device recognises.';

@@ -34,9 +34,9 @@ public class WebClient extends WebViewClient {
 	@Override
 	public void onPageFinished(WebView view, String url)
 	{
-		String deviceInfo = new String();
-		deviceInfo = Build.MODEL + "(" + Build.DEVICE +  ", " + Build.PRODUCT + ")";
-		view.loadUrl("javascript: tellInjectionWorking('" + deviceInfo +")');");
+		String deviceInfo = Build.MODEL + " (" + Build.DEVICE +  ", " + Build.PRODUCT + ")";
+		String androidVersion = "Android "+ Build.VERSION.RELEASE +" (API Level " + Build.VERSION.SDK + ")";
+		view.loadUrl("javascript: tellInjectionWorking('" + deviceInfo +"', '"+ androidVersion +"');");
 
 		view.setOnTouchListener(new View.OnTouchListener() {
 
