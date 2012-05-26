@@ -6,6 +6,7 @@ package com.changeit.dtpolyfill;
 
 import android.view.MotionEvent;
 import android.view.View;
+import android.os.Build;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -17,6 +18,13 @@ import android.webkit.WebViewClient;
  */
 public class WebClient extends WebViewClient {
 
+	/**
+	 * If TRUE, all touch events will be stopped and replaced by polyfills
+	 */
+	protected Boolean polyfillAlltouches = false;
+	protected int maxNativeTouches = -1;
+	protected int maxTouches = -1;
+
 	@Override
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
 		view.loadUrl(url);
@@ -24,8 +32,12 @@ public class WebClient extends WebViewClient {
 	}
 
 	@Override
-	public void onPageFinished(WebView view, String url) {
-		view.loadUrl("javascript: tellInjectionWorking();");
+	public void onPageFinished(WebView view, String url)
+	{
+		String deviceInfo = new String();
+		deviceInfo = Build.MODEL + "(" + Build.DEVICE +  ", " + Build.PRODUCT + ")";
+		view.loadUrl("javascript: tellInjectionWorking('" + deviceInfo +")');");
+
 		view.setOnTouchListener(new View.OnTouchListener() {
 
 			public boolean onTouch(View arg0, MotionEvent arg1) {
@@ -42,7 +54,15 @@ public class WebClient extends WebViewClient {
 					view.loadUrl("javascript: debug('" + dumpEvent(arg1) + "');");
 				}
 
-				return true;
+				if (polyfillAlltouches || (maxTouches > 0 && arg1.getPointerCount() > maxNativeTouches) ) {
+					return true;
+				}
+
+				/**
+				 * FALSE : let other handlers do their work (good if we want to test for already working touchevents)
+				 * TRUE : stop propagating / bubbling event to other handlers (good if we don't want selection or zoom handlers to happen in webview)
+				 */
+				return false;
 			}
 		});
 	}
