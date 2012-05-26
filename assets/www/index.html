@@ -7,8 +7,11 @@ and open the template in the editor.
 	<head>
 		<title></title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 		<link href="wmp.css" rel="stylesheet" type="text/css">
 		<script type="text/javascript">
+			var nativeTapCount = 0;
+			var maxNativeTapCount = 0;
 			var tapCount = 0;
 			var maxTapCount = 0;
 
@@ -17,11 +20,22 @@ and open the template in the editor.
 				divs.js.textContent = 'Javascript is working!';
 			}
 
-			function tellInjectionWorking() {
+			function tellInjectionWorking(deviceInfo) {
 				divs.inject.setAttribute('class', 'ok');
-				divs.inject.textContent = 'Excellent - Injection of Javascript from Java Code is working !';
+				divs.inject.innerHTML = 'Injection of Javascript from Android Code works!';
+				if (deviceInfo.length > 0)
+					divs.inject.innerHTML += '<br/>Device Info received from android.os.Build.*:<br/>' + deviceInfo;
+
 				divs.info.removeAttribute('class');
 				divs.info.textContent = 'Now put 1+ fingers on the screen to see how many your device recognises.';
+			}
+
+			function tellTouchDevice() {
+				if (!isTouchDevice())
+					return;
+
+				divs.touch.setAttribute('class', 'ok');
+				divs.touch.innerHTML = 'This a touch device.';
 			}
 
 			function incrementTapCount() {
@@ -29,55 +43,90 @@ and open the template in the editor.
 				updateTapCount();
 			}
 
-		function decrementTapCount() {
-			--tapCount;
-			updateTapCount();
-		}
-
-		function updateTapCount() {
-			if (tapCount > 0)
-				divs.tap.setAttribute('class', 'ok');
-
-			if (tapCount > maxTapCount)
-				maxTapCount = tapCount;
-
-			divs.tap.innerHTML = 'Taps registered: ' + tapCount + '<ul><li>High score: ' + maxTapCount + ' taps</li></ul>';
-
-			if (maxTapCount > 1) {
-				divs.info.setAttribute('class', 'awesome');
-				divs.info.textContent = '>2 parallel taps registered! See high scores above.';
+			function decrementTapCount() {
+				--tapCount;
+				updateTapCount();
 			}
-		}
 
-		function debug(text, startNewLog)
-		{
-			if (startNewLog)
-				return divs.debug.textContent = text;
+			function touchListener(e) {
+				nativeTapCount = e.touches.length;
+				updateNativeTapCount();
+				e.preventDefault();
+			}
 
-			return divs.debug.innerHTML = text + '<br />' + divs.debug.innerHTML;
-		}
+			function updateNativeTapCount() {
+				if (nativeTapCount > maxNativeTapCount)
+					maxNativeTapCount = nativeTapCount;
+
+				divs.ntap.innerHTML = 'Currently recognised (touch-API): ' + nativeTapCount + ' touch(es)<ul><li>High score: ' + maxNativeTapCount + ' simultaneous touches</li></ul>';
+				divs.ntap.setAttribute('class', 'ok');
+			}
+
+
+			function updateTapCount() {
+				if (tapCount > 0)
+					divs.tap.setAttribute('class', 'ok');
+
+				if (tapCount > maxTapCount)
+					maxTapCount = tapCount;
+
+				divs.tap.innerHTML = 'Currently recognised (polyfill-able): ' + tapCount + ' touch(es)<ul><li>High score: ' + maxTapCount + ' simultaneous touches</li></ul>';
+
+				if (maxTapCount > 1) {
+					divs.info.setAttribute('class', 'awesome');
+					divs.info.textContent = '>2 parallel taps registered! See high scores above.';
+				}
+			}
+
+			function isTouchDevice(){
+				try{
+					document.createEvent("TouchEvent");
+					return true;
+				}catch(e){
+					return false;
+				}
+			}
+
+			function debug(text, startNewLog)
+			{
+				if (startNewLog)
+					return divs.debug.textContent = text;
+
+				return divs.debug.innerHTML = text + '<br />' + divs.debug.innerHTML;
+			}
+
+			window.onload = function() {
+				divs =  {
+					js: document.getElementById('test-js'),
+					inject: document.getElementById('test-inject'),
+					touch: document.getElementById('test-touch'),
+					ntap: document.getElementById('test-native'),
+					tap: document.getElementById('test-tap'),
+					debug: document.getElementById('debug'),
+					info: document.getElementById('info')
+				};
+
+				addEventListener('touchstart', touchListener, true);
+				addEventListener('touchend', touchListener, true);
+//				addEventListener('touchmove', function(e) { e.preventDefault(); }, true);
+				addEventListener('touchcancel', touchListener, true);
+
+				tellJsWorking();
+				tellTouchDevice();
+			}
 		</script>
 
 	</head>
-	<body>
+	<body id="body">
 		<ul>
 			<li class="ok">Greetings, Earthling!</li>
 			<li id="test-js" class="bad">Javascript is not enabled your WebView :(</li>
-			<li id="test-inject" class="hidden bad">Injection of Javascript from Java Code is not working :(</li>
+			<li id="test-touch" class="bad">This is not a Touch Device (doesn't know "TouchEvent")</li>
+			<li id="test-inject" class="hidden">Injection of Javascript from Java Code is not working :(</li>
+			<li id="test-native" class="hidden">No Javascript Touch events registered.</li>
 			<li id="test-tap" class="hidden"></li>
 		</ul>
 		<div id="info-wrapper"><div id="info" class="hidden"></div></div>
 		<div id="debug"></div>
-		<script type="text/javascript">
-		var divs =  {
-			js: document.getElementById('test-js'),
-			inject: document.getElementById('test-inject'),
-			tap: document.getElementById('test-tap'),
-			debug: document.getElementById('debug'),
-			info: document.getElementById('info')
-		};
-
-		tellJsWorking();
-		</script>
 	</body>
 </html>
