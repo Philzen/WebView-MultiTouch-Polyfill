@@ -1,9 +1,9 @@
 (function(){
-	mousePressed = false;
-})();
+	var win = window;
+	var mousePressed = false;
 
 
-Touch = function (e, id) {
+	var Touch = function (e, id) {
 
 		this.clientX = e.clientX;
 		this.clientY = e.clientY;
@@ -27,12 +27,25 @@ Touch = function (e, id) {
 		*/
 	}
 
+	var TouchList = function (touchEvent, touchesLength) {
+		this[0] = touchEvent;
+		this.length = touchesLength;
+	};
 
 	wmp = {
+		isTouchDevice: true,
 		mapMouseToTouch: {
 			mousedown: 'touchstart',
 			mousemove: 'touchmove',
 			mouseup: 'touchend'
+		},
+		checkTouchDevice: function(){
+			try{
+				document.createEvent("TouchEvent");
+				return true;
+			}catch(e){
+				return false;
+			}
 		},
 		mouseListener: function(e) {
 			if (e.type == 'mousemove' && !mousePressed)
@@ -44,27 +57,29 @@ Touch = function (e, id) {
 					mousePressed = false;
 			}
 
+
 			var eventType = wmp.mapMouseToTouch[e.type];
 			var touch = new Touch(e, 0);
 			wmp._raiseEvent(touch.target, eventType, touch);
 		},
 		_raiseEvent: function(el, eType, touch) {
-			// following two functions should ideally be TouchEvent, but Webkit only knows UIEvent (which also does the job)
-			var evt = document.createEvent('UIEvent');
-			evt.initUIEvent(eType, true, true);
+			if (this.isTouchDevice)
+				;
+			else {
+				// following two functions should ideally be TouchEvent, but Webkit only knows UIEvent (which also does the job)
+				var evt = document.createEvent('UIEvent');
+				evt.initUIEvent(eType, true, true);
+			}
 
 			// Generate Touchlist
-			var touchList = new function TouchList( ) {
-				this[0] = touch;
-				this.length = (eType == 'touchend') ? 0 : 1;
-			};
+			var touchList = new TouchList(evt, eType == 'touchend' ? 0 : 1);
 			//console.log(eType, touchList.length);
 			// attach TouchEvent-Attributes not in UIEvent by default
 			evt.altKey = false;
 			evt.ctrlKey = false;
 			evt.metaKey = false;
 			evt.shiftKey = false;
-			evt.view = window;
+			evt.view = win;
 
 			/** todo polyfill with multi-events */
 			evt.changedTouches = touchList;
@@ -75,3 +90,23 @@ Touch = function (e, id) {
 			el.dispatchEvent(evt);
 		}
 	}
+
+	// initialisation
+	wmp.isTouchDevice = wmp.checkTouchDevice();
+	if (!wmp.isTouchDevice)
+	{
+		addEventListener('mousedown', wmp.mouseListener, true);
+		addEventListener('mouseup', wmp.mouseListener, true);
+		addEventListener('mousemove', wmp.mouseListener, true)
+	}
+
+
+	win.wmp = wmp;
+	win.wmp.prototype = {
+		Touch: Touch,
+		TouchList: TouchList
+	};
+
+})();
+
+
