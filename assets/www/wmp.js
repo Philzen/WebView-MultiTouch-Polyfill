@@ -2,7 +2,9 @@
 	var win = window;
 	var mousePressed = false;
 
-
+	/**
+	 * @class Dummy Implementation of the W3C Touch object (Level 1)
+	 */
 	var Touch = function (e, id) {
 
 		this.clientX = e.clientX;
@@ -27,9 +29,26 @@
 		*/
 	}
 
-	var TouchList = function (touchEvent, touchesLength) {
-		this[0] = touchEvent;
+	/**
+	 * @class Dummy Implementation of the W3C TouchList object (Level 1)
+	 */
+	function TouchList (touches, touchesLength) {
+
+		for (var i = 0; i < touchesLength; i++)
+			this[i] = touches[i];
+
 		this.length = touchesLength;
+		function identifiedTouch (id) {
+			self.item = function item() {
+				return this.item.id;
+			};
+			return this[id];
+		}
+	};
+
+	TouchList.prototype.item = function item (){
+			return this._value;
+	
 	};
 
 	wmp = {
@@ -60,9 +79,10 @@
 
 			var eventType = wmp.mapMouseToTouch[e.type];
 			var touch = new Touch(e, 0);
-			wmp._raiseEvent(touch.target, eventType, touch);
+			wmp._raiseEvent(touch.target, eventType, [touch] );
 		},
-		_raiseEvent: function(el, eType, touch) {
+		_raiseEvent: function(el, eType, touches) {
+
 			if (this.isTouchDevice)
 				;
 			else {
@@ -72,8 +92,8 @@
 			}
 
 			// Generate Touchlist
-			var touchList = new TouchList(evt, eType == 'touchend' ? 0 : 1);
-			//console.log(eType, touchList.length);
+			var touchList = new TouchList(touches, eType == 'touchend' ? 0 : 1);
+
 			// attach TouchEvent-Attributes not in UIEvent by default
 			evt.altKey = false;
 			evt.ctrlKey = false;
