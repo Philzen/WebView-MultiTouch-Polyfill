@@ -3,7 +3,27 @@
 	var mousePressed = false;
 
 	/**
+	 * @constructor Construct Touch Object from Mouse- (or compatible) Event
+	 * @param {Event} e The Event that was fired
+	 * @param {number} id See property identifier
+	 *
 	 * @class Dummy Implementation of the W3C Touch object (Level 1)
+	 * @property {EventTarget} target
+	 * The Element on which the touch point started when it was first placed on the surface, even if the touch point has since moved outside the interactive area of that element.
+	 * @property {number} identifier
+	 * An identification number for each touch point. When a touch point becomes active, it must be assigned an identifier that is distinct from any other active touch point. While the touch point remains active, all events that refer to it must assign it the same identifier.
+	 * @property {number} screenX
+	 * The horizontal coordinate of point relative to the screen in pixels
+	 * @property {number} screenY
+	 * The vertical coordinate of point relative to the screen in pixels
+	 * @property {number} clientX
+	 * The horizontal coordinate of point relative to the viewport in pixels, excluding any scroll offset
+	 * @property {number} clientY
+	 * clientY The vertical coordinate of point relative to the viewport in pixels, excluding any scroll offset
+	 * @property {number} pageX
+	 * The horizontal coordinate of point relative to the viewport in pixels, including any scroll offset
+	 * @property {number} pageY
+	 * The vertical coordinate of point relative to the viewport in pixels, including any scroll offset
 	 */
 	var Touch = function (e, id) {
 
@@ -30,10 +50,14 @@
 	}
 
 	/**
-	 * @class Dummy Implementation of the W3C TouchList object (Level 1)
+	 * Dummy Implementation of the W3C TouchList object (Level 1)
+	 * @constructor
+	 * @class
+	 * @param {array} touches an array of all touches that are currently active
+	 *
 	 */
-	function TouchList (touches, touchesLength) {
-
+	function TouchList (touches) {
+		var touchesLength = touches.length;
 		for (var i = 0; i < touchesLength; i++)
 			this[i] = touches[i];
 
@@ -46,9 +70,12 @@
 		}
 	};
 
-	TouchList.prototype.item = function item (){
-			return this._value;
-	
+	/**
+	 * @param {number} id Index
+	 * @return {Touch}
+	 */
+	TouchList.prototype.item = function item (id){
+		return this[id];
 	};
 
 	wmp = {
@@ -92,7 +119,7 @@
 			}
 
 			// Generate Touchlist
-			var touchList = new TouchList(touches, eType == 'touchend' ? 0 : 1);
+			var touchList = new TouchList(touches);
 
 			// attach TouchEvent-Attributes not in UIEvent by default
 			evt.altKey = false;
