@@ -1,7 +1,10 @@
 (function(){
-	var win = window;
-	var touched = false;
-	var touchCount = 0;
+	var win = window,
+		touched = false,
+		touchCount = 0,
+		currentTouches = [],
+		currentTouch = null;
+
 
 	/**
 	 * @constructor Construct Touch Object from Mouse- (or compatible) Event
@@ -86,7 +89,8 @@
 	};
 
 	wmp = {
-		isTouchDevice: true,
+		currentTouch: null,
+		knowsTouchAPI: null,
 		mapMouseToTouch: {
 			mousedown: 'touchstart',
 			mousemove: 'touchmove',
@@ -94,8 +98,8 @@
 		},
 		checkTouchDevice: function(){
 			try{
-				document.createEvent("TouchEvent");
-				return true;
+				var evt = document.createEvent("TouchEvent");
+				return evt.initTouchEvent;
 			}catch(e){
 				return false;
 			}
@@ -109,83 +113,111 @@
 			}
 		},
 		touchListener: function(e) {
-			console.log('touch!');
+			currentTouch = new Touch(e, 0);
 			if (e.type == 'touchmove' && !touched)
 				return;
-			else {
-				if (e.type == 'touchstart') {
-					wmp._incrementTouchCount();
-				}
-				else if (e.type == 'touchend' && e.type == 'touchcancel') {
-					wmp._decrementTouchCount();
-				}
+			else if (e.type == 'touchstart') {
+				wmp._addTouch( currentTouch );
 			}
-
-			var touch = new Touch(e, 0);
-			wmp._raiseEvent(touch.target, e.Type, [touch] );
-
+			else if (e.type == 'touchend' || e.type == 'touchcancel') {
+				wmp._removeTouch( currentTouch );
+			}
+			wmp._raiseTouch(e, e.Type);
 		},
 		mouseListener: function(e) {
-			// todo track all touches in class variable
-			var touches = [];
+			currentTouch = new Touch(e, 0);
 
 			if (e.type == 'mousemove' && !touched)
 				return;
 			else if (e.type == 'mousedown') {
-				wmp._incrementTouchCount();
-				touches[0] = new Touch(e, 0);
+				wmp._addTouch( currentTouch );
 			}
 			else if (e.type == 'mouseup') {
-				wmp._decrementTouchCount();
+				wmp._removeTouch( currentTouch );
 			}
 
 			var eventType = wmp.mapMouseToTouch[e.type];
-			wmp._raiseEvent(e.target, eventType, touches );
+			wmp._raiseTouch(e, eventType);
 		},
-		_raiseEvent: function(el, eType, touches) {
-			if (this.isTouchDevice) {
-				var evt = document.createEvent('TouchEvent');
-				evt.initTouchEvent(eType, true, true);
+		_raiseTouch: function(e, eType) {
+
+			if (this.knowsTouchAPI) {
+
+				var evt = win.document.createEvent('TouchEvent');
+
+				/*
+				* TODO Check browser type for non-webkit (initTouchEvent has different order of parameters otherwise)
+				* Webkit implementation: https://trac.webkit.org/browser/trunk/WebCore/dom/TouchEvent.idl?rev=52113#L40
+				* Safari: http://developer.apple.com/library/safari/documentation/UserExperience/Reference/TouchEventClassReference/TouchEvent/TouchEvent.html#//apple_ref/javascript/instm/TouchEvent/initTouchEvent
+				* W3C's latest recommendation has removed this function: http://www.w3.org/TR/touch-events/
+				*/
+				var targetTouches = win.document.createTouchList( currentTouch );
+				console.log(targetTouches);
+				evt.initTouchEvent( currentTouches.length > 0 ? win.document.createTouchList( currentTouches ) : win.document.createTouchList(),
+					targetTouches, win.document.createTouchList( [evt] ), eType, win,
+					e.screenX, e.screenY, e.clientX, e.clientY,
+					false, false, false, false);
+
 			} else {
-				// following two functions should ideally be TouchEvent, but Webkit only knows UIEvent (which also does the job)
-				var evt = document.createEvent('UIEvent');
+				// following two functions should ideally be TouchEvent, but FF and most desktop Webkit only know UIEvent (which also does the job)
+				var evt = win.document.createEvent('UIEvent');
 				evt.initUIEvent(eType, true, true, win, 0);
+
+				/** todo polyfill with multi-events */
+
+				evt.touches = new TouchList(currentTouches);
+				evt.changedTouches = new TouchList( [ currentTouch ] );
+				evt.targetTouches = wmp.getTargetTouches(e.target);
 			}
 
-			// Generate Touchlist
-			var touchList = new TouchList(touches);
 
 			// attach TouchEvent-Attributes not in UIEvent by default
 			evt.altKey = false;
 			evt.ctrlKey = false;
 			evt.metaKey = false;
 			evt.shiftKey = false;
-			evt.view = win;
 
-			/** todo polyfill with multi-events */
-			evt.changedTouches = touchList;
-			evt.targetTouches = touchList;
-			evt.touches = touchList;
 
-//			evt.preventDefault(false);
-console.log(evt);
-			el.dispatchEvent(evt);
+//			evt.preventDefault();
+			console.log(evt);
+
+			el = e.target;
+			if (el != undefined)
+				el = win.document.elementFromPoint(e.clientX, e.clientY);
+			if (el != undefined)
+				el.dispatchEvent(evt);
+			else
+				document.dispatchEvent(evt);
 		},
-		_incrementTouchCount: function() {
+		_addTouch: function(touch) {
 			touched = true;
 			++touchCount;
+			currentTouches[touch.identifier] = touch;
 		},
-		_decrementTouchCount: function() {
+		_removeTouch: function(touch) {
 			if (touchCount > 0)
 				--touchCount;
 
 			if (touched && touchCount === 0)
 				touched = false;
+
+			currentTouches.splice(touch.identifier, 1);
+		},
+		getTargetTouches: function(element) {
+			var targetTouches = [];
+			for (var i = 0; i < currentTouches.length; i++) {
+				var touch = currentTouches[i];
+				console.log(touch.target, element);
+				if (touch.target == element) {
+					targetTouches.push(touch);
+				}
+			}
+			return new TouchList (targetTouches);
 		}
 	}
 
 	// initialisation
-	wmp.isTouchDevice = wmp.checkTouchDevice();
+	wmp.knowsTouchAPI = wmp.checkTouchDevice();
 	wmp.isMouseDevice = wmp.checkMouseDevice();
 	if (wmp.isMouseDevice)
 	{
@@ -194,11 +226,12 @@ console.log(evt);
 		addEventListener('mousemove', wmp.mouseListener, true)
 	}
 
-	if (wmp.isTouchDevice) {
-		win.document.addEventListener('touchstart', wmp.touchListener, true);
-		win.document.addEventListener('touchend', wmp.touchListener, true);
-		win.document.addEventListener('touchcancel', wmp.touchListener, true)
-		win.document.addEventListener('touchmove', wmp.touchListener, true)
+	if (wmp.knowsTouchAPI) {
+//
+//		win.document.addEventListener('touchstart', wmp.touchListener, true);
+//		win.document.addEventListener('touchend', wmp.touchListener, true);
+//		win.document.addEventListener('touchcancel', wmp.touchListener, true)
+//		win.document.addEventListener('touchmove', wmp.touchListener, true)
 	}
 
 
