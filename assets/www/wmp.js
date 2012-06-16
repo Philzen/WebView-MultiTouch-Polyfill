@@ -41,6 +41,7 @@
 		// TODO identifier übermitteln
 		this.identifier = id;
 		this.target = document.elementFromPoint(this.pageX, this.pageY);
+		this._origin = 'created_by_wmp';
 
 		/**
 		 * These can be seen in chrome touch emulation, not sure if they will be required for WebView
@@ -113,7 +114,7 @@
 			}
 		},
 		touchListener: function(e) {
-			currentTouch = new Touch(e, 0);
+			currentTouch = wmp._getTouchFromEvent(e);
 			if (e.type == 'touchmove' && !touched)
 				return;
 			else if (e.type == 'touchstart') {
@@ -125,7 +126,7 @@
 			wmp._raiseTouch(e, e.Type);
 		},
 		mouseListener: function(e) {
-			currentTouch = new Touch(e, 0);
+			currentTouch = wmp._getTouchFromEvent(e);
 
 			if (e.type == 'mousemove' && !touched)
 				return;
@@ -140,10 +141,9 @@
 			wmp._raiseTouch(e, eventType);
 		},
 		_raiseTouch: function(e, eType) {
-
+			var evt;
 			if (this.knowsTouchAPI) {
-
-				var evt = win.document.createEvent('TouchEvent');
+				evt = win.document.createEvent('TouchEvent');
 
 				/*
 				* TODO Check browser type for non-webkit (initTouchEvent has different order of parameters otherwise)
@@ -151,25 +151,23 @@
 				* Safari: http://developer.apple.com/library/safari/documentation/UserExperience/Reference/TouchEventClassReference/TouchEvent/TouchEvent.html#//apple_ref/javascript/instm/TouchEvent/initTouchEvent
 				* W3C's latest recommendation has removed this function: http://www.w3.org/TR/touch-events/
 				*/
-				var targetTouches = win.document.createTouchList( currentTouch );
-				console.log(targetTouches);
-				evt.initTouchEvent( currentTouches.length > 0 ? win.document.createTouchList( currentTouches ) : win.document.createTouchList(),
-					targetTouches, win.document.createTouchList( [evt] ), eType, win,
+
+				evt.initTouchEvent( this.getTouches(),
+					this.getTargetTouches(e.target), this._createTouchList( [currentTouch] ), eType, win,
 					e.screenX, e.screenY, e.clientX, e.clientY,
 					false, false, false, false);
 
 			} else {
 				// following two functions should ideally be TouchEvent, but FF and most desktop Webkit only know UIEvent (which also does the job)
-				var evt = win.document.createEvent('UIEvent');
+				evt = win.document.createEvent('UIEvent');
 				evt.initUIEvent(eType, true, true, win, 0);
 
 				/** todo polyfill with multi-events */
 
 				evt.touches = new TouchList(currentTouches);
 				evt.changedTouches = new TouchList( [ currentTouch ] );
-				evt.targetTouches = wmp.getTargetTouches(e.target);
+				evt.targetTouches = this.getTargetTouches(e.target);
 			}
-
 
 			// attach TouchEvent-Attributes not in UIEvent by default
 			evt.altKey = false;
@@ -177,9 +175,8 @@
 			evt.metaKey = false;
 			evt.shiftKey = false;
 
-
 //			evt.preventDefault();
-			console.log(evt);
+//			console.log(evt)
 
 			el = e.target;
 			if (el != undefined)
@@ -188,6 +185,21 @@
 				el.dispatchEvent(evt);
 			else
 				document.dispatchEvent(evt);
+		},
+		_getTouchFromEvent:  function(e) {
+			var identifier = 0;
+			if (this.knowsTouchAPI) {
+				/** webkit-specific implementation */
+				// example call http://code.google.com/p/webkit-mirror/source/browse/LayoutTests/fast/events/touch/script-tests/document-create-touch.js?r=20bf23dc3dbe1b396811a472b8ccd31b460a1bd3&spec=svn20bf23dc3dbe1b396811a472b8ccd31b460a1bd3
+				return win.document.createTouch(win, e.target, identifier, e.pageX, e.pageY, e.screenX, e.screenY);
+			} else
+				return new Touch(e, identifier);
+		},
+		getTouches: function()		{
+			if (this.knowsTouchAPI)
+				return this._createTouchList(currentTouches);
+
+			return new TouchList(currentTouches);
 		},
 		_addTouch: function(touch) {
 			touched = true;
@@ -203,15 +215,40 @@
 
 			currentTouches.splice(touch.identifier, 1);
 		},
-		getTargetTouches: function(element) {
+		_createTouchList: function(touches) {
+			/**
+				* Very very ugly implementation, required as for some reason .apply() won't work on createTouchList()
+				* (at least in WebKit - throws TypeError)
+				* TODO replace with smarter currying function
+				*/
+			switch(touches.length) {
+				case 1:
+					return win.document.createTouchList(touches[0]);
+				case 2:
+					return win.document.createTouchList(touches[0], touches[1]);
+				case 3:
+					return win.document.createTouchList(touches[0], touches[1]);
+				default:
+					return win.document.createTouchList();
+			}
+		},
+		/**
+		 * Get a TouchList for every point of contact that is touching the surface
+		 * AND started on the targetElement (of the current event)
+		 * @param {HTMLElement} targetElement The element to return any existing known touches for
+		 */
+		getTargetTouches: function(targetElement) {
 			var targetTouches = [];
 			for (var i = 0; i < currentTouches.length; i++) {
 				var touch = currentTouches[i];
-				console.log(touch.target, element);
-				if (touch.target == element) {
+				if (touch.target == targetElement) {
 					targetTouches.push(touch);
 				}
 			}
+
+			if (this.knowsTouchAPI)
+				return this._createTouchList(targetTouches);
+
 			return new TouchList (targetTouches);
 		}
 	}
