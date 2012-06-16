@@ -1,6 +1,7 @@
 (function(){
 	var win = window;
-	var mousePressed = false;
+	var touched = false;
+	var touchCount = 0;
 
 	/**
 	 * @constructor Construct Touch Object from Mouse- (or compatible) Event
@@ -99,29 +100,56 @@
 				return false;
 			}
 		},
-		mouseListener: function(e) {
-			if (e.type == 'mousemove' && !mousePressed)
+		checkMouseDevice: function(){
+			try{
+				document.createEvent("MouseEvent");
+				return true;
+			}catch(e){
+				return false;
+			}
+		},
+		touchListener: function(e) {
+			console.log('touch!');
+			if (e.type == 'touchmove' && !touched)
 				return;
 			else {
-				if (e.type == 'mousedown')
-					mousePressed = true;
-				else if (e.type == 'mouseup')
-					mousePressed = false;
+				if (e.type == 'touchstart') {
+					wmp._incrementTouchCount();
+				}
+				else if (e.type == 'touchend' && e.type == 'touchcancel') {
+					wmp._decrementTouchCount();
+				}
 			}
 
+			var touch = new Touch(e, 0);
+			wmp._raiseEvent(touch.target, e.Type, [touch] );
+
+		},
+		mouseListener: function(e) {
+			// todo track all touches in class variable
+			var touches = [];
+
+			if (e.type == 'mousemove' && !touched)
+				return;
+			else if (e.type == 'mousedown') {
+				wmp._incrementTouchCount();
+				touches[0] = new Touch(e, 0);
+			}
+			else if (e.type == 'mouseup') {
+				wmp._decrementTouchCount();
+			}
 
 			var eventType = wmp.mapMouseToTouch[e.type];
-			var touch = new Touch(e, 0);
-			wmp._raiseEvent(touch.target, eventType, [touch] );
+			wmp._raiseEvent(e.target, eventType, touches );
 		},
 		_raiseEvent: function(el, eType, touches) {
-
-			if (this.isTouchDevice)
-				;
-			else {
+			if (this.isTouchDevice) {
+				var evt = document.createEvent('TouchEvent');
+				evt.initTouchEvent(eType, true, true);
+			} else {
 				// following two functions should ideally be TouchEvent, but Webkit only knows UIEvent (which also does the job)
 				var evt = document.createEvent('UIEvent');
-				evt.initUIEvent(eType, true, true);
+				evt.initUIEvent(eType, true, true, win, 0);
 			}
 
 			// Generate Touchlist
@@ -139,18 +167,38 @@
 			evt.targetTouches = touchList;
 			evt.touches = touchList;
 
-//			evt.preventDefault();
+//			evt.preventDefault(false);
+console.log(evt);
 			el.dispatchEvent(evt);
+		},
+		_incrementTouchCount: function() {
+			touched = true;
+			++touchCount;
+		},
+		_decrementTouchCount: function() {
+			if (touchCount > 0)
+				--touchCount;
+
+			if (touched && touchCount === 0)
+				touched = false;
 		}
 	}
 
 	// initialisation
 	wmp.isTouchDevice = wmp.checkTouchDevice();
-	if (!wmp.isTouchDevice)
+	wmp.isMouseDevice = wmp.checkMouseDevice();
+	if (wmp.isMouseDevice)
 	{
 		addEventListener('mousedown', wmp.mouseListener, true);
 		addEventListener('mouseup', wmp.mouseListener, true);
 		addEventListener('mousemove', wmp.mouseListener, true)
+	}
+
+	if (wmp.isTouchDevice) {
+		win.document.addEventListener('touchstart', wmp.touchListener, true);
+		win.document.addEventListener('touchend', wmp.touchListener, true);
+		win.document.addEventListener('touchcancel', wmp.touchListener, true)
+		win.document.addEventListener('touchmove', wmp.touchListener, true)
 	}
 
 
