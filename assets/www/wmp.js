@@ -55,6 +55,12 @@
 	 * @class
 	 * @param {array} touches an array of all touches that are currently active
 	 *
+	 * @property {number} length
+	 * the number of Touches in the list
+	 * @function {Touch} item({number} index)
+	 * returns the Touch at the specified index in the list
+	 * @function {Touch} item({number} index)
+	 * returns the first Touch item in the list whose identifier property matches the specified identifier
 	 */
 	function TouchList (touches) {
 		var touchesLength = touches.length;
