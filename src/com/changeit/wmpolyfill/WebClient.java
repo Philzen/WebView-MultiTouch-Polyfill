@@ -18,11 +18,13 @@ import android.webkit.WebViewClient;
  */
 public class WebClient extends WebViewClient {
 
-	/**
-	 * If TRUE, all touch events will be stopped and replaced by polyfills
-	 */
+	/** If TRUE, all touch events will be stopped and replaced by polyfills	 */
 	protected Boolean polyfillAlltouches = false;
+
+	/** The number of touches already working out-of-the-box (-1 = Unknown) */
 	protected int maxNativeTouches = -1;
+
+	/** The desired number of touches you'd need in your application (-1 = ALL) */
 	protected int maxTouches = -1;
 
 	@Override
