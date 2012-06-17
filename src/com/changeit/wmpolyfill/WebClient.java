@@ -4,6 +4,9 @@
  */
 package com.changeit.wmpolyfill;
 
+import android.graphics.Point;
+import android.view.WindowManager;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.os.Build;
@@ -38,41 +41,44 @@ public class WebClient extends WebViewClient {
 	@Override
 	public void onPageFinished(WebView view, String url)
 	{
+
 		String deviceInfo = Build.MODEL + " (" + Build.DEVICE +  ", " + Build.PRODUCT + ")";
 		String androidVersion = "Android "+ Build.VERSION.RELEASE +" (API Level " + Build.VERSION.SDK + ")";
 		view.loadUrl("javascript: tellInjectionWorking('" + deviceInfo +"', '"+ androidVersion +"');");
 
-		view.setOnTouchListener(new View.OnTouchListener() {
+		if (Build.VERSION.SDK_INT <= 10) {
+			view.setOnTouchListener(new View.OnTouchListener() {
 
-			public boolean onTouch(View arg0, MotionEvent arg1) {
-				WebView view = (WebView) arg0;
-				int actionCode = arg1.getAction() & MotionEvent.ACTION_MASK;
+				public boolean onTouch(View arg0, MotionEvent arg1) {
+					WebView view = (WebView) arg0;
+					int actionCode = arg1.getAction() & MotionEvent.ACTION_MASK;
 
-				if (actionCode == MotionEvent.ACTION_DOWN || actionCode == MotionEvent.ACTION_POINTER_DOWN) {
-					view.loadUrl("javascript: incrementTapCount();");
-				} else if (actionCode == MotionEvent.ACTION_UP || actionCode == MotionEvent.ACTION_POINTER_UP) {
-					view.loadUrl("javascript: decrementTapCount();");
+					if (actionCode == MotionEvent.ACTION_DOWN || actionCode == MotionEvent.ACTION_POINTER_DOWN) {
+						view.loadUrl("javascript: incrementTapCount();");
+					} else if (actionCode == MotionEvent.ACTION_UP || actionCode == MotionEvent.ACTION_POINTER_UP) {
+						view.loadUrl("javascript: decrementTapCount();");
+					}
+
+					String EventJSON = new String(getEvent(arg1));
+					if (EventJSON.length() > 0)
+	//				if (arg1.getAction() != MotionEvent.ACTION_MOVE) {
+						view.loadUrl("javascript: debug('" + EventJSON + "');");
+	//				}
+
+					lastMotionEvent = MotionEvent.obtain(arg1);
+
+					if (polyfillAlltouches || (maxTouches > 0 && arg1.getPointerCount() > maxNativeTouches) ) {
+						return true;
+					}
+
+					/**
+					* FALSE : let other handlers do their work (good if we want to test for already working touchevents)
+					* TRUE : stop propagating / bubbling event to other handlers (good if we don't want selection or zoom handlers to happen in webview)
+					*/
+					return false;
 				}
-
-				String EventJSON = new String(getEvent(arg1));
-				if (EventJSON.length() > 0)
-//				if (arg1.getAction() != MotionEvent.ACTION_MOVE) {
-					view.loadUrl("javascript: debug('" + getEvent(arg1) + "');");
-//				}
-
-				lastMotionEvent = MotionEvent.obtain(arg1);
-
-				if (polyfillAlltouches || (maxTouches > 0 && arg1.getPointerCount() > maxNativeTouches) ) {
-					return true;
-				}
-
-				/**
-				 * FALSE : let other handlers do their work (good if we want to test for already working touchevents)
-				 * TRUE : stop propagating / bubbling event to other handlers (good if we don't want selection or zoom handlers to happen in webview)
-				 */
-				return false;
-			}
-		});
+			});
+		}
 	}
 
 	/**
