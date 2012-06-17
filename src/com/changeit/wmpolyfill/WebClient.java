@@ -30,8 +30,8 @@ public class WebClient extends WebViewClient {
 	/** The desired number of touches you'd need in your application (-1 = ALL) */
 	protected int maxTouches = -1;
 
-	private Point viewSize = null;
 	private MotionEvent lastMotionEvent = null;
+	private String movedBuffer = null;
 
 	@Override
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -47,13 +47,12 @@ public class WebClient extends WebViewClient {
 		String androidVersion = "Android "+ Build.VERSION.RELEASE +" (API Level " + Build.VERSION.SDK + ")";
 		view.loadUrl("javascript: tellInjectionWorking('" + deviceInfo +"', '"+ androidVersion +"');");
 
-		viewSize = new Point(view.getWidth(), view.getHeight());
 
 		if (Build.VERSION.SDK_INT <= 10) {
 			view.setOnTouchListener(new View.OnTouchListener() {
-
 				public boolean onTouch(View arg0, MotionEvent arg1) {
 					WebView view = (WebView) arg0;
+
 					int actionCode = arg1.getAction() & MotionEvent.ACTION_MASK;
 
 					if (actionCode == MotionEvent.ACTION_DOWN || actionCode == MotionEvent.ACTION_POINTER_DOWN) {
@@ -65,7 +64,7 @@ public class WebClient extends WebViewClient {
 					/* Tracking each and every move would be total javascript runtime overkill,
 					* therefore only changes by at least one pixel will be tracked
 					*/
-					if (arg1.getAction() != MotionEvent.ACTION_MOVE || checkMoved(arg1) ) {
+					if (arg1.getAction() != MotionEvent.ACTION_MOVE || checkMoved(view, arg1) ) {
 						String EventJSON = getEvent(arg1);
 						view.loadUrl("javascript: debug('" + EventJSON + "');");
 					}
@@ -88,7 +87,7 @@ public class WebClient extends WebViewClient {
 	 * Function to check if coordinates between two moves have changed by at least one pixel
 	 * @return
 	 */
-	private boolean checkMoved(MotionEvent event)	{
+	private boolean checkMoved(WebView view, MotionEvent event)	{
 		if (lastMotionEvent == null || lastMotionEvent.getPointerCount() != event.getPointerCount()) {
 			lastMotionEvent = MotionEvent.obtain(event);
 			return true;
@@ -99,8 +98,8 @@ public class WebClient extends WebViewClient {
 			if ( (int)lastMotionEvent.getX(i) == (int)event.getX(i)
 				&& (int)lastMotionEvent.getY(i) == (int)event.getY(i)
 				// Ignore Events outside of viewport
-				|| (int)event.getX(i) > viewSize.x
-				|| (int)event.getY(i) > viewSize.y)
+				|| (int)event.getX(i) > view.getWidth()
+				|| (int)event.getY(i) > view.getHeight())
 				continue;
 
 			lastMotionEvent = MotionEvent.obtain(event);
