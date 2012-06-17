@@ -59,13 +59,13 @@ public class WebClient extends WebViewClient {
 						view.loadUrl("javascript: decrementTapCount();");
 					}
 
-					String EventJSON = new String(getEvent(arg1));
-					if (EventJSON.length() > 0)
-	//				if (arg1.getAction() != MotionEvent.ACTION_MOVE) {
+					/* Tracking each and every move would be total javascript runtime overkill,
+					* therefore only changes by at least one pixel will be tracked
+					*/
+					if (arg1.getAction() != MotionEvent.ACTION_MOVE || checkMoved(arg1) ) {
+						String EventJSON = getEvent(arg1);
 						view.loadUrl("javascript: debug('" + EventJSON + "');");
-	//				}
-
-					lastMotionEvent = MotionEvent.obtain(arg1);
+					}
 
 					if (polyfillAlltouches || (maxTouches > 0 && arg1.getPointerCount() > maxNativeTouches) ) {
 						return true;
@@ -85,16 +85,21 @@ public class WebClient extends WebViewClient {
 	 * Function to check if coordinates between two moves have changed by at least one pixel
 	 * @return
 	 */
-	private boolean hasMoved(MotionEvent event)	{
-
-		/**
-		 * In almost all cases the moving finger triggered the motion event
-		 * therefore there is no need to loop through all Pointer indexes here (which would be the thorough way)
-		 */
-		if ( lastMotionEvent == null
-			||  (int)lastMotionEvent.getX() != (int)event.getX()
-			|| (int)lastMotionEvent.getY() != (int)event.getY() )
+	private boolean checkMoved(MotionEvent event)	{
+		if (lastMotionEvent == null || lastMotionEvent.getPointerCount() != event.getPointerCount()) {
+			lastMotionEvent = MotionEvent.obtain(event);
 			return true;
+		}
+
+		for (int i = 0; i < event.getPointerCount(); i++)
+		{
+			if ( (int)lastMotionEvent.getX(i) == (int)event.getX(i)
+				&& (int)lastMotionEvent.getY(i) == (int)event.getY(i) )
+				continue;
+
+			lastMotionEvent = MotionEvent.obtain(event);
+			return true;
+		}
 
 		return false;
 	}
@@ -129,13 +134,7 @@ public class WebClient extends WebViewClient {
 		int actionCode = action & MotionEvent.ACTION_MASK;
 		//sb.append("code").append( actionCode );
 		if (actionCode == MotionEvent.ACTION_MOVE) {
-			/* Tracking each and every move would be total javascript runtime overkill,
-			 * therefore only changes by at least one pixel will be tracked
-			 */
-			if (hasMoved(event)) {
-				sb.append("\"move\" ").append(getMoveJSON(event));
-				// At least one touch event has changed
-			}
+			sb.append("\"move\" ").append(getMoveJSON(event));
 		} else if (actionCode == MotionEvent.ACTION_POINTER_DOWN
 			|| actionCode == MotionEvent.ACTION_DOWN) {
 			sb.append("\"down\", ").append(event.getPointerId(event.getActionIndex()));
