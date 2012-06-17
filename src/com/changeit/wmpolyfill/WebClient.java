@@ -30,6 +30,7 @@ public class WebClient extends WebViewClient {
 	/** The desired number of touches you'd need in your application (-1 = ALL) */
 	protected int maxTouches = -1;
 
+	private Point viewSize = null;
 	private MotionEvent lastMotionEvent = null;
 
 	@Override
@@ -45,6 +46,8 @@ public class WebClient extends WebViewClient {
 		String deviceInfo = Build.MODEL + " (" + Build.DEVICE +  ", " + Build.PRODUCT + ")";
 		String androidVersion = "Android "+ Build.VERSION.RELEASE +" (API Level " + Build.VERSION.SDK + ")";
 		view.loadUrl("javascript: tellInjectionWorking('" + deviceInfo +"', '"+ androidVersion +"');");
+
+		viewSize = new Point(view.getWidth(), view.getHeight());
 
 		if (Build.VERSION.SDK_INT <= 10) {
 			view.setOnTouchListener(new View.OnTouchListener() {
@@ -94,7 +97,10 @@ public class WebClient extends WebViewClient {
 		for (int i = 0; i < event.getPointerCount(); i++)
 		{
 			if ( (int)lastMotionEvent.getX(i) == (int)event.getX(i)
-				&& (int)lastMotionEvent.getY(i) == (int)event.getY(i) )
+				&& (int)lastMotionEvent.getY(i) == (int)event.getY(i)
+				// Ignore Events outside of viewport
+				|| (int)event.getX(i) > viewSize.x
+				|| (int)event.getY(i) > viewSize.y)
 				continue;
 
 			lastMotionEvent = MotionEvent.obtain(event);
