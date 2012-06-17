@@ -31,7 +31,7 @@ public class WebClient extends WebViewClient {
 	protected int maxTouches = -1;
 
 	private MotionEvent lastMotionEvent = null;
-	private String movedBuffer = null;
+	private StringBuilder movedBuffer;
 
 	@Override
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -49,9 +49,11 @@ public class WebClient extends WebViewClient {
 
 
 		if (Build.VERSION.SDK_INT <= 10) {
+			movedBuffer = new StringBuilder();
 			view.setOnTouchListener(new View.OnTouchListener() {
 				public boolean onTouch(View arg0, MotionEvent arg1) {
 					WebView view = (WebView) arg0;
+					checkMoved(view, arg1);
 
 					int actionCode = arg1.getAction() & MotionEvent.ACTION_MASK;
 
@@ -64,7 +66,7 @@ public class WebClient extends WebViewClient {
 					/* Tracking each and every move would be total javascript runtime overkill,
 					* therefore only changes by at least one pixel will be tracked
 					*/
-					if (arg1.getAction() != MotionEvent.ACTION_MOVE || checkMoved(view, arg1) ) {
+					if (arg1.getAction() != MotionEvent.ACTION_MOVE ||  movedBuffer.length() > 0) {
 						String EventJSON = getEvent(arg1);
 						view.loadUrl("javascript: debug('" + EventJSON + "');");
 					}
@@ -87,8 +89,15 @@ public class WebClient extends WebViewClient {
 	 * Function to check if coordinates between two moves have changed by at least one pixel
 	 * @return
 	 */
-	private boolean checkMoved(WebView view, MotionEvent event)	{
-		if (lastMotionEvent == null || lastMotionEvent.getPointerCount() != event.getPointerCount()) {
+	private boolean checkMoved(WebView view, MotionEvent event) {
+		int actionCode = event.getAction() & MotionEvent.ACTION_MASK;
+		if (actionCode == MotionEvent.ACTION_UP)
+			return false;
+
+		movedBuffer.setLength(0);
+
+		if (lastMotionEvent == null) {
+			addAllMovesToBuffer(event);
 			lastMotionEvent = MotionEvent.obtain(event);
 			return true;
 		}
@@ -102,6 +111,9 @@ public class WebClient extends WebViewClient {
 				|| (int)event.getY(i) > view.getHeight())
 				continue;
 
+			addMoveToBuffer(event, i);
+		}
+		if (movedBuffer.length() > 0) {
 			lastMotionEvent = MotionEvent.obtain(event);
 			return true;
 		}
@@ -110,24 +122,41 @@ public class WebClient extends WebViewClient {
 	}
 
 	/**
-	 * Return a JSON representation of the pointer information that is intented to be sent to the javascript runtime
+	 * Add a JSON representation of the pointer information to the JSON Move Buffer
 	 * @param event A motion Event
 	 * @return
 	 */
-	private String getMoveJSON(MotionEvent event) {
+	private void addMoveToBuffer(MotionEvent event, int pointerIndex) {
+		if (movedBuffer.length() > 0) {
+			movedBuffer.append(",");
+		}
+
 		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < event.getPointerCount(); i++) {
-			sb.append("{").append(event.getPointerId(i))
-					.append(": [")
-					.append((int)event.getX(i)).append(", ")
-					.append((int) event.getY(i)).append(", ")
+			sb.append("{").append(event.getPointerId(pointerIndex))
+					.append(":[")
+					.append((int)event.getX(pointerIndex)).append(",")
+					.append((int) event.getY(pointerIndex))
 					.append("]")
 					.append("}");
-			if (i + 1 < event.getPointerCount()) {
-				sb.append(",");
-			}
+		movedBuffer.append(sb.toString());
+	}
+
+	private void addAllMovesToBuffer(MotionEvent event) {
+		if (movedBuffer.length() > 0) {
+			movedBuffer.append(",");
 		}
-		return sb.toString();
+		StringBuilder sb = new StringBuilder();
+		for (int i=0; i < event.getPointerCount(); i++) {
+				sb.append("{").append(event.getPointerId(i))
+						.append(": [")
+						.append((int)event.getX(i)).append(", ")
+						.append((int) event.getY(i))
+						.append("]")
+						.append("}");
+			if (i+1 < event.getPointerCount())
+				sb.append(",");
+		}
+		movedBuffer.append( sb.toString() );
 	}
 
 	private String getEvent(MotionEvent event) {
@@ -139,15 +168,15 @@ public class WebClient extends WebViewClient {
 		int actionCode = action & MotionEvent.ACTION_MASK;
 		//sb.append("code").append( actionCode );
 		if (actionCode == MotionEvent.ACTION_MOVE) {
-			sb.append("\"move\" ").append(getMoveJSON(event));
+			sb.append("{move:[").append(movedBuffer).append("]}");
 		} else if (actionCode == MotionEvent.ACTION_POINTER_DOWN
 			|| actionCode == MotionEvent.ACTION_DOWN) {
-			sb.append("\"down\", ").append(event.getPointerId(event.getActionIndex()));
+			sb.append("{down:").append(event.getPointerId(event.getActionIndex())).append(movedBuffer).append("}");
 		} else if (actionCode == MotionEvent.ACTION_POINTER_UP
 			|| actionCode == MotionEvent.ACTION_UP) {
-			sb.append("\"up\", ").append(event.getPointerId(event.getActionIndex()));
+			sb.append("{up:").append(event.getPointerId(event.getActionIndex())).append("}");
 		} else if (actionCode == MotionEvent.ACTION_CANCEL) {
-			sb.append("\"cancel\", ").append(event.getPointerId(event.getActionIndex()));
+			sb.append("{cancel:").append(event.getPointerId(event.getActionIndex()));
 		}
 
 
