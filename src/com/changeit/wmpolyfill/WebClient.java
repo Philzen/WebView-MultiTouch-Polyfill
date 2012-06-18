@@ -171,7 +171,7 @@ public class WebClient extends WebViewClient {
 			sb.append("{move:[").append(movedBuffer).append("]}");
 		} else if (actionCode == MotionEvent.ACTION_POINTER_DOWN
 			|| actionCode == MotionEvent.ACTION_DOWN) {
-			sb.append("{down:").append(event.getPointerId(event.getActionIndex())).append(movedBuffer).append("}");
+			sb.append("{down:").append(movedBuffer).append("}");
 		} else if (actionCode == MotionEvent.ACTION_POINTER_UP
 			|| actionCode == MotionEvent.ACTION_UP) {
 			sb.append("{up:").append(event.getPointerId(event.getActionIndex())).append("}");
