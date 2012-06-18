@@ -145,7 +145,7 @@
 		},
 		_raiseTouch: function(e, eType) {
 			var evt = e;
-			var touches = this.getCleanedTouchMap();
+			var touches = this.getCleanedTouchMap(eType);
 			if (!debug) alert(touches.length);
 			if (true == false) {
 //			if (this.knowsTouchAPI) {
@@ -241,7 +241,6 @@
 						evt.identifier =  parseInt(data[action]);
 						evt.pageX = currentTouch.pageX;
 						evt.pageY = currentTouch.pageY;
-						console.log(evt.identifier);
 					}
 					this._fillUpEventData(evt);
 					returnTouches.push( wmp._getTouchFromEvent(evt) );
@@ -274,9 +273,12 @@
 
 			return new TouchList(touchesArray);
 		},
-		getCleanedTouchMap: function()
+		getCleanedTouchMap: function(eType)
 		{
 			var cleanedArray = [currentTouch];
+			if (eType == "touchend" || eType == "touchcancel")
+				cleanedArray = [];
+
 			for (var i=0; i < currentTouches.length; i++) {
 				if (currentTouches[i] != undefined && currentTouches[i].identifier != currentTouch.identifier)
 					cleanedArray.push(currentTouches[i]);
