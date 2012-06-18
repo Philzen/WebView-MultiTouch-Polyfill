@@ -42,7 +42,10 @@
 		else
 			this.identifier = 0;
 
-		this.target = e.target;
+		if (e.target)
+			this.target = e.target;
+		else
+			this.target = win.document.elementFromPoint(this.pageX, this.pageY);
 		/**
 		 * These can be seen in chrome touch emulation, not sure if they will be required for WebView
 
@@ -135,7 +138,9 @@
 			if (justRaisedAnEvent)
 				return justRaisedAnEvent = false;
 
-			currentTouch = wmp._getTouchFromEvent(e);
+			var currentTouchEvent = e.touches[0];
+			currentTouchEvent.target = e.target;
+			currentTouch = wmp._getTouchFromEvent(e.touches[0]);
 			if (e.type == 'touchmove' || e.type == 'touchstart') {
 				wmp._updateTouchMap( currentTouch );
 			}
