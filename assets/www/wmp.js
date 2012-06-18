@@ -115,6 +115,7 @@
 			}
 		},
 		polyfill: function(data){
+			debug('polyfill!');
 			var newTouches = wmp._getTouchesFromPolyfillData(data);
 			currentTouch = newTouches[0];
 			for (action in data) {

@@ -24,13 +24,13 @@ public class WebClient extends WebViewClient {
 	/** If TRUE, all touch events will be stopped and replaced by polyfills	 */
 	protected Boolean polyfillAlltouches = false;
 
-	/** The number of touches already working out-of-the-box (-1 = Unknown) */
-	protected int maxNativeTouches = -1;
+	/** The number of touches already working out-of-the-box (we'll assume 1 for all devices) */
+	protected int maxNativeTouches = 1;
 
-	/** The desired number of touches you'd need in your application (-1 = ALL) */
-	protected int maxTouches = -1;
-
+	/** A copy of the last Motion Event */
 	private MotionEvent lastMotionEvent = null;
+	
+	/** A String to store only the current changed event info  **/
 	private StringBuilder movedBuffer;
 
 	@Override
@@ -63,15 +63,16 @@ public class WebClient extends WebViewClient {
 						view.loadUrl("javascript: decrementTapCount();");
 					}
 
-					/* Tracking each and every move would be total javascript runtime overkill,
-					* therefore only changes by at least one pixel will be tracked
-					*/
-					if (arg1.getAction() != MotionEvent.ACTION_MOVE ||  movedBuffer.length() > 0) {
-						String EventJSON = getEvent(arg1);
-						view.loadUrl("javascript: debug('" + EventJSON + "');");
-					}
 
-					if (polyfillAlltouches || (maxTouches > 0 && arg1.getPointerCount() > maxNativeTouches) ) {
+					if (polyfillAlltouches || arg1.getPointerCount() > maxNativeTouches ) {
+						/* Tracking each and every move would be total javascript runtime overkill,
+						* therefore only changes by at least one pixel will be tracked
+						*/
+						if (arg1.getAction() != MotionEvent.ACTION_MOVE ||  movedBuffer.length() > 0) {
+							String EventJSON = getEvent(arg1);
+							view.loadUrl("javascript: wmp.polyfill(" + EventJSON + ");");
+	//						view.loadUrl("javascript: debug('" + EventJSON + "');");
+						}
 						return true;
 					}
 
