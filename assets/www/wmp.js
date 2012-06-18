@@ -115,7 +115,6 @@
 			}
 		},
 		polyfill: function(data){
-			debug('polyfill!');
 			var newTouches = wmp._getTouchesFromPolyfillData(data);
 			currentTouch = newTouches[0];
 			for (action in data) {
@@ -147,9 +146,11 @@
 		_raiseTouch: function(e, eType) {
 			var evt = e;
 			var touches = this.getCleanedTouchMap();
+			if (!debug) alert(touches.length);
 			if (true == false) {
-		// TODO Find reason why TouchLists are empty on phone (works as expected on rekonq, which supports all the native events
 //			if (this.knowsTouchAPI) {
+// TODO Find reason why TouchLists are empty on phone (works as expected on rekonq, which supports all the native events)
+
 				evt = win.document.createEvent('TouchEvent');
 
 				/*
@@ -169,15 +170,15 @@
 				console.log(evt.touches);
 			} else {
 				// following two functions should ideally be TouchEvent, but FF and most desktop Webkit only know UIEvent (which also does the job)
-				evt = win.document.createEvent('UIEvent');
-				evt.initUIEvent(eType, true, true, win, 0);
+				evt = win.document.createEvent('Event');
+				evt.pageX = e.pageX;
+				evt.pageY = e.pageY;
+				evt.initEvent(eType, true, true, win, 0);
 
 				/** todo reflect multi-moves on changedtouches */
 				evt.changedTouches = new TouchList( [ currentTouch ] );
 				evt.touches = new TouchList(touches);
 				evt.targetTouches = new TouchList( this.extractTargetTouches(touches, e.target) );
-				evt.pageX = e.pageX;
-				evt.pageY = e.pageY;
 				evt.target = e.target;
 				evt.identifier = (e.identifier ? e.identifier : 0);
 				this._fillUpEventData(evt);
@@ -187,10 +188,10 @@
 				evt.metaKey = false;
 				evt.shiftKey = false;
 			}
-
-
+//console.log(e, evt);
 //		TODO Check which events need preventDefault ("up" is a hot candidate)
-//			evt.preventDefault();
+//			if (evt.type == 'touchdown')
+//				evt.preventDefault();
 //debug(print(evt,1));
 
 			el = e.target;
@@ -208,14 +209,14 @@
 			var eventSkeleton = function() {
 				return {
 					identifier: undefined,
-					screenX: undefined,
-					screenY: undefined
+					pageX: undefined,
+					pageY: undefined
 				};
 			}
 			var evt;
 			for (action in data) {
 				if (action == 'move') {
-					for (i in data[action])
+					for (var i=0; i < data[action].length; i++) {
 						for (touchId in data[action][i]) {
 							evt = eventSkeleton();
 							evt.identifier = parseInt(touchId);
@@ -224,6 +225,7 @@
 							this._fillUpEventData(evt);
 							returnTouches.push( wmp._getTouchFromEvent(evt) );
 						}
+					}
 				}
 				else {
 					evt = eventSkeleton();
@@ -236,7 +238,10 @@
 							evt.pageY = data[action][touchId][1];
 						}
 					} else if (action == 'up' || action == 'cancel') {
-						evt.identifier = data[action];
+						evt.identifier =  parseInt(data[action]);
+						evt.pageX = currentTouch.pageX;
+						evt.pageY = currentTouch.pageY;
+						console.log(evt.identifier);
 					}
 					this._fillUpEventData(evt);
 					returnTouches.push( wmp._getTouchFromEvent(evt) );
@@ -271,10 +276,11 @@
 		},
 		getCleanedTouchMap: function()
 		{
-			var cleanedArray = new Array();
-			for (touch in currentTouches)
-				if (currentTouches[touch] != undefined)
-					cleanedArray.push(touch);
+			var cleanedArray = [currentTouch];
+			for (var i=0; i < currentTouches.length; i++) {
+				if (currentTouches[i] != undefined && currentTouches[i].identifier != currentTouch.identifier)
+					cleanedArray.push(currentTouches[i]);
+			}
 			return cleanedArray;
 		},
 		_updateTouchMap: function(touch) {
