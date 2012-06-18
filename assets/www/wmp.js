@@ -1,7 +1,5 @@
 (function(){
 	var win = window,
-		touched = false,
-		touchCount = 0,
 		currentTouches = [],
 		currentTouch = null;
 		/** will be true if a polyfilled touch event has just been raised, so the listener for native touches will know */
@@ -103,7 +101,7 @@
 		checkTouchDevice: function(){
 			try{
 				var evt = document.createEvent("TouchEvent");
-				return evt.initTouchEvent;
+				return evt.initTouchEvent && win.document.createTouchList;
 			}catch(e){
 				return false;
 			}
@@ -117,19 +115,25 @@
 			}
 		},
 		polyfill: function(data){
-			currentTouch = wmp._getTouchFromPolyfillData(data);
+			var newTouches = wmp._getTouchesFromPolyfillData(data);
+			currentTouch = newTouches[0];
 			for (action in data) {
-				if (action == 'down' || action == 'move')
-					wmp._updateTouchMap( currentTouch );
-				else if (action == 'up' || action == 'cancel')
-					wmp._removeFromTouchMap( currentTouch );
+				if (action == 'move') {
+					for(i in newTouches)
+						wmp._updateTouchMap( newTouches[i] );
+				} else {
+					if (action == 'down')
+						wmp._updateTouchMap( currentTouch );
+					else if (action == 'up' || action == 'cancel')
+						wmp._removeFromTouchMap( currentTouch );
+				}
 			}
 			wmp._raiseTouch (currentTouch, wmp.mapPolyfillToTouch[action]);
+			return true;
 		},
 		nativeTouchListener: function(e) {
 			if (justRaisedAnEvent)
 				return justRaisedAnEvent = false;
-			console.log('nativeListener', e);
 
 			currentTouch = wmp._getTouchFromEvent(e);
 			if (e.type == 'touchmove' || e.type == 'touchstart') {
@@ -141,7 +145,10 @@
 		},
 		_raiseTouch: function(e, eType) {
 			var evt;
-			if (this.knowsTouchAPI) {
+			var touches = this.getCleanedTouchMap();
+			if (true == false) {
+		// TODO Find reason why TouchLists are empty on phone (works as expected on rekonq, which supports all the native events
+//			if (this.knowsTouchAPI) {
 				evt = win.document.createEvent('TouchEvent');
 
 				/*
@@ -151,21 +158,23 @@
 				* W3C's latest recommendation has removed this function: http://www.w3.org/TR/touch-events/
 				*/
 
-				evt.initTouchEvent( this.getTouches(),
-					this.getTargetTouches(e.target), this._createTouchList( [currentTouch] ), eType, win,
+				/** todo reflect multi-moves on changedtouches (3rd argument) */
+				evt.initTouchEvent( this._callCreateTouchList(touches),
+					this._callCreateTouchList(this.extractTargetTouches(touches, e.target)),
+					this._callCreateTouchList( [currentTouch] ), eType, win,
 					e.screenX, e.screenY, e.clientX, e.clientY,
 					false, false, false, false);
 
+				console.log(evt.touches);
 			} else {
 				// following two functions should ideally be TouchEvent, but FF and most desktop Webkit only know UIEvent (which also does the job)
 				evt = win.document.createEvent('UIEvent');
 				evt.initUIEvent(eType, true, true, win, 0);
 
-				/** todo polyfill with multi-events */
-
-				evt.touches = new TouchList(currentTouches);
+				/** todo reflect multi-moves on changedtouches */
 				evt.changedTouches = new TouchList( [ currentTouch ] );
-				evt.targetTouches = this.getTargetTouches(e.target);
+				evt.touches = new TouchList(touches);
+				evt.targetTouches = new TouchList( this.extractTargetTouches(touches, e.target) );
 			}
 
 			// attach TouchEvent-Attributes not in UIEvent by default
@@ -174,7 +183,10 @@
 			evt.metaKey = false;
 			evt.shiftKey = false;
 
+//		TODO Check which events need preventDefault ("up" is a hot candidate)
 //			evt.preventDefault();
+//debug(print(evt,1));
+
 			el = e.target;
 			if (el == undefined)
 				el = win.document.elementFromPoint(e.clientX, e.clientY);
@@ -185,34 +197,56 @@
 			else
 				document.dispatchEvent(evt);
 		},
-		_getTouchFromPolyfillData:function(data) {
-			var evt = {
-				identifier: undefined,
-				screenX: undefined,
-				screenY: undefined
+		_getTouchesFromPolyfillData:function(data) {
+			var returnTouches = [];
+			var eventSkeleton = function() {
+				return {
+					identifier: undefined,
+					screenX: undefined,
+					screenY: undefined
+				};
+			}
+			var fillEventData = function(evt) {
+				evt.target = win.document.elementFromPoint(evt.pageX, evt.pageY);
+				// TODO respect offset, etc... for scrolling pages (needed ?)
+				evt.screenX = evt.pageX;
+				evt.screenY = evt.pageY;
+				evt.clientX = evt.pageX;
+				evt.clientY = evt.pageY;
 			};
 
+			var evt;
 			for (action in data) {
-				if (action == 'down') {
-					for (touchId in data[action]) {
-						evt.identifier = parseInt(touchId);
-						evt.pageX = data[action][touchId][0];
-						evt.pageY = data[action][touchId][1];
+				if (action == 'move') {
+					for (i in data[action])
+						for (touchId in data[action][i]) {
+							evt = eventSkeleton();
+							evt.identifier = parseInt(touchId);
+							evt.pageX = data[action][i][touchId][0];
+							evt.pageY = data[action][i][touchId][1];
+							fillEventData(evt);
+							returnTouches.push( wmp._getTouchFromEvent(evt) );
+						}
+				}
+				else {
+					evt = eventSkeleton();
+					if (action == 'down') {
+						// NOTE: There is always one down event triggered per finger,
+						// it seemed impossible in tests to trigger one event with two fingers simultaneously
+						for (touchId in data[action]) {
+							evt.identifier = parseInt(touchId);
+							evt.pageX = data[action][touchId][0];
+							evt.pageY = data[action][touchId][1];
+						}
+					} else if (action == 'up' || action == 'cancel') {
+						evt.identifier = data[action];
 					}
-				} else if (action == 'up') {
-					console.log(data[action]);
-					evt.identifier = data[action];
+					fillEventData(evt);
+					returnTouches.push( wmp._getTouchFromEvent(evt) );
 				}
 			}
 
-			// TODO respect offset, etc... for scrolling pages (needed ?)
-			evt.screenX = evt.pageX;
-			evt.screenY = evt.pageY;
-			evt.clientX = evt.pageX;
-			evt.clientY = evt.pageY;
-			evt.target = win.document.elementFromPoint(evt.pageX, evt.pageY);
-
-			return wmp._getTouchFromEvent(evt);
+			return returnTouches;
 		},
 		_getTouchFromEvent:  function(e) {
 			if (this.knowsTouchAPI) {
@@ -220,26 +254,30 @@
 				// example call http://code.google.com/p/webkit-mirror/source/browse/LayoutTests/fast/events/touch/script-tests/document-create-touch.js?r=20bf23dc3dbe1b396811a472b8ccd31b460a1bd3&spec=svn20bf23dc3dbe1b396811a472b8ccd31b460a1bd3
 				return win.document.createTouch(win, e.target, (e.identifier ? e.identifier : 0), e.pageX, e.pageY, e.screenX, e.screenY);
 			} else
-				return new wmp.Touch(e);
+				return new Touch(e);
 		},
-		getTouches: function()		{
+		getTouchList: function(touchesArray) {
 			if (this.knowsTouchAPI)
-				return this._createTouchList(currentTouches);
+				return this._callCreateTouchList(cleanedArray);
 
-			return new TouchList(currentTouches);
+			return new TouchList(touchesArray);
+		},
+		getCleanedTouchMap: function()
+		{
+			var cleanedArray = new Array();
+			for (touch in currentTouches)
+				if (currentTouches[touch] != undefined)
+					cleanedArray.push(touch);
+			return cleanedArray;
 		},
 		_updateTouchMap: function(touch) {
-			touched = true;
 			currentTouches[touch.identifier] = touch;
-			console.log( currentTouches);
 		},
 		_removeFromTouchMap: function(touch) {
-			if (touched && currentTouches.length == 1)
-				touched = false;
-
-			currentTouches.splice(touch.identifier, 1);
+			delete currentTouches[touch.identifier];
 		},
-		_createTouchList: function(touches) {
+		_callCreateTouchList: function(touches) {
+			debug('createTouchList '+ touches.length);
 			/**
 				* Very very ugly implementation, required as for some reason .apply() won't work on createTouchList()
 				* (at least in WebKit - throws TypeError)
@@ -261,23 +299,21 @@
 			}
 		},
 		/**
-		 * Get a TouchList for every point of contact that is touching the surface
+		 * Extract an array of touches with every point of contact that is touching the surface
 		 * AND started on the targetElement (of the current event)
+		 * @param {Array} touches An Array of Touch Objects
 		 * @param {HTMLElement} targetElement The element to return any existing known touches for
 		 */
-		getTargetTouches: function(targetElement) {
+		extractTargetTouches: function(touches, targetElement) {
+			var touch;
 			var targetTouches = [];
 			for (var i = 0; i < currentTouches.length; i++) {
-				var touch;
 				if ((touch = currentTouches[i]) && touch.target == targetElement) {
 					targetTouches.push(touch);
 				}
 			}
 
-			if (this.knowsTouchAPI)
-				return this._createTouchList(targetTouches);
-
-			return new TouchList (targetTouches);
+			return targetTouches;
 		}
 	}
 
