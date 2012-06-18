@@ -144,7 +144,7 @@
 			}
 		},
 		_raiseTouch: function(e, eType) {
-			var evt;
+			var evt = e;
 			var touches = this.getCleanedTouchMap();
 			if (true == false) {
 		// TODO Find reason why TouchLists are empty on phone (works as expected on rekonq, which supports all the native events
@@ -175,13 +175,18 @@
 				evt.changedTouches = new TouchList( [ currentTouch ] );
 				evt.touches = new TouchList(touches);
 				evt.targetTouches = new TouchList( this.extractTargetTouches(touches, e.target) );
+				evt.pageX = e.pageX;
+				evt.pageY = e.pageY;
+				evt.target = e.target;
+				evt.identifier = (e.identifier ? e.identifier : 0);
+				this._fillUpEventData(evt);
+				// attach TouchEvent-Attributes not in UIEvent by default
+				evt.altKey = false;
+				evt.ctrlKey = false;
+				evt.metaKey = false;
+				evt.shiftKey = false;
 			}
 
-			// attach TouchEvent-Attributes not in UIEvent by default
-			evt.altKey = false;
-			evt.ctrlKey = false;
-			evt.metaKey = false;
-			evt.shiftKey = false;
 
 //		TODO Check which events need preventDefault ("up" is a hot candidate)
 //			evt.preventDefault();
@@ -206,15 +211,6 @@
 					screenY: undefined
 				};
 			}
-			var fillEventData = function(evt) {
-				evt.target = win.document.elementFromPoint(evt.pageX, evt.pageY);
-				// TODO respect offset, etc... for scrolling pages (needed ?)
-				evt.screenX = evt.pageX;
-				evt.screenY = evt.pageY;
-				evt.clientX = evt.pageX;
-				evt.clientY = evt.pageY;
-			};
-
 			var evt;
 			for (action in data) {
 				if (action == 'move') {
@@ -224,7 +220,7 @@
 							evt.identifier = parseInt(touchId);
 							evt.pageX = data[action][i][touchId][0];
 							evt.pageY = data[action][i][touchId][1];
-							fillEventData(evt);
+							this._fillUpEventData(evt);
 							returnTouches.push( wmp._getTouchFromEvent(evt) );
 						}
 				}
@@ -241,12 +237,22 @@
 					} else if (action == 'up' || action == 'cancel') {
 						evt.identifier = data[action];
 					}
-					fillEventData(evt);
+					this._fillUpEventData(evt);
 					returnTouches.push( wmp._getTouchFromEvent(evt) );
 				}
 			}
 
 			return returnTouches;
+		},
+		_fillUpEventData: function(evt) {
+			if (!evt.target)
+				evt.target = win.document.elementFromPoint(evt.pageX, evt.pageY);
+			// TODO respect offset, etc... for scrolling pages (needed ?)
+			evt.screenX = evt.pageX;
+			evt.screenY = evt.pageY;
+			evt.clientX = evt.pageX;
+			evt.clientY = evt.pageY;
+			return evt;
 		},
 		_getTouchFromEvent:  function(e) {
 			if (this.knowsTouchAPI) {
