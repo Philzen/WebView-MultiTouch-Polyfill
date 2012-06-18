@@ -89,7 +89,7 @@
 		return this[id];
 	};
 
-	var wmp = {
+	touchmouse = {
 		currentTouch: null,
 		knowsTouchAPI: null,
 		mapMouseToTouch: {
@@ -113,14 +113,20 @@
 				return false;
 			}
 		},
-		nativeTouchListener: function(e) {
-			currentTouch = wmp._getTouchFromEvent(e);
-			if (e.type == 'touchmove' || e.type == 'touchstart') {
-				wmp._updateTouchMap( currentTouch );
+		mouseListener: function(e) {
+			currentTouch = touchmouse._getTouchFromEvent(e);
+
+			if (e.type == 'mousemove' && !touched)
+				return;
+			else if (e.type == 'mousedown') {
+				touchmouse._addTouch( currentTouch );
 			}
-			else if (e.type == 'touchend' || e.type == 'touchcancel') {
-				wmp._removeFromTouchMap( currentTouch );
+			else if (e.type == 'mouseup') {
+				touchmouse._removeTouch( currentTouch );
 			}
+
+			var eventType = touchmouse.mapMouseToTouch[e.type];
+			touchmouse._raiseTouch(e, eventType);
 		},
 		_raiseTouch: function(e, eType) {
 			var evt;
@@ -183,12 +189,16 @@
 
 			return new TouchList(currentTouches);
 		},
-		_updateTouchMap: function(touch) {
+		_addTouch: function(touch) {
 			touched = true;
+			++touchCount;
 			currentTouches[touch.identifier] = touch;
 		},
-		_removeFromTouchMap: function(touch) {
-			if (touched && currentTouches.length == 1)
+		_removeTouch: function(touch) {
+			if (touchCount > 0)
+				--touchCount;
+
+			if (touched && touchCount === 0)
 				touched = false;
 
 			currentTouches.splice(touch.identifier, 1);
@@ -232,17 +242,17 @@
 	}
 
 	// initialisation
-	wmp.knowsTouchAPI = wmp.checkTouchDevice();
-	wmp.isMouseDevice = wmp.checkMouseDevice();
+	touchmouse.knowsTouchAPI = touchmouse.checkTouchDevice();
+	touchmouse.isMouseDevice = touchmouse.checkMouseDevice();
+	if (touchmouse.isMouseDevice)
+	{
+		addEventListener('mousedown', touchmouse.mouseListener, true);
+		addEventListener('mouseup', touchmouse.mouseListener, true);
+		addEventListener('mousemove', touchmouse.mouseListener, true)
+	}
 
-	// Native Events need to be tracked in order to always have a complete map of touches in javascript
-	win.document.addEventListener('touchstart', wmp.nativeTouchListener, true);
-	win.document.addEventListener('touchend', wmp.nativeTouchListener, true);
-	win.document.addEventListener('touchcancel', wmp.nativeTouchListener, true)
-	win.document.addEventListener('touchmove', wmp.nativeTouchListener, true)
 
-
-	win.wmp = wmp;
+	win.wmp = touchmouse;
 	win.wmp.prototype = {
 		Touch: Touch,
 		TouchList: TouchList
