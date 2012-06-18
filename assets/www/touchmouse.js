@@ -41,7 +41,6 @@
 		// TODO identifier übermitteln
 		this.identifier = id;
 		this.target = document.elementFromPoint(this.pageX, this.pageY);
-		this._origin = 'created_by_wmp';
 
 		/**
 		 * These can be seen in chrome touch emulation, not sure if they will be required for WebView
@@ -252,8 +251,8 @@
 	}
 
 
-	win.wmp = touchmouse;
-	win.wmp.prototype = {
+	win.touchmouse = touchmouse;
+	win.touchmouse.prototype = {
 		Touch: Touch,
 		TouchList: TouchList
 	};
