@@ -145,7 +145,7 @@
 		},
 		_raiseTouch: function(e, eType) {
 			var evt = e;
-			var touches = this.getCleanedTouchMap(eType);
+			var touches = this.getCleanedTouchMap();
 			if (!debug) alert(touches.length);
 			if (true == false) {
 //			if (this.knowsTouchAPI) {
@@ -195,11 +195,11 @@
 //debug(print(evt,1));
 
 			el = e.target;
-			if (el)
+			if (el == undefined)
 				el = win.document.elementFromPoint(e.clientX, e.clientY);
 
 			justRaisedAnEvent = true;
-			if (el)
+			if (el != undefined)
 				el.dispatchEvent(evt);
 			else
 				document.dispatchEvent(evt);
@@ -274,14 +274,11 @@
 
 			return new TouchList(touchesArray);
 		},
-		getCleanedTouchMap: function(type)
+		getCleanedTouchMap: function()
 		{
-			var cleanedArray = [];
-			if (type == "touchstart" || type == "touchmove")
-				cleanedArray.push(currentTouch);
-
+			var cleanedArray = [currentTouch];
 			for (var i=0; i < currentTouches.length; i++) {
-				if (currentTouches[i] && currentTouches[i].identifier != currentTouch.identifier)
+				if (currentTouches[i] != undefined && currentTouches[i].identifier != currentTouch.identifier)
 					cleanedArray.push(currentTouches[i]);
 			}
 			return cleanedArray;

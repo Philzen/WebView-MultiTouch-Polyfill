@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"><head>
     <title>scripty2 | Touchspector</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<script src="../wmp.js" type="text/javascript"></script>
+		<script src="../touchmouse.js" type="text/javascript"></script>
 
     <script src="prototype.min.js" type="text/javascript"></script>
     <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
@@ -183,7 +183,7 @@
         var touchfingers = $$('div.touch');
 
         function infoForTouchEvent(event, phase){
-		console.log(event);
+//		console.log(event);
           return '<span>touchevent#</span>'+(touchcounter)+'<br/>'+
             '<span>phase</span>'+phase+'<br/>'+
             '<span>touches</span>'+(event.touches.length)+'<br/>';
@@ -204,7 +204,7 @@
           touchfingers[4].addClassName('off');
 
           $A(touches).each(function(touch,index){
-            info += infoForTouch(touch,index) + ' target ' + touch.target.id;
+            info += infoForTouch(touch,index);
             setPos(touchfingers[touch.identifier].removeClassName('off'), touch);
           });
 
