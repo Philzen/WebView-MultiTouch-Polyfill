@@ -19,12 +19,12 @@
       }
       .touch, .indicator, .mouse {
         position: absolute;
-        background: transparent;
+        background: rgba(0,255,0,0.5);
         border: 2px solid #0f0;
-        height: 32px;
-        width: 40px;
+        height: 50px;
+        width: 62px;
 		border-radius: 4px;
-        margin:-15px 0 0 -15px;
+        margin:-31px 0 0 -31px;
         text-align: center;
         padding-top:8px;
         color: #0f0;
@@ -127,7 +127,7 @@
     <div id="footer"><b style="background:#fff;color:#000">Touchspector</b> touch/transformaction APIs</div>
     <div id="panspeed" style="display: none; "><div></div></div>
     <div id="events">
-      <div id="mouse" class=""><span><b>mouse</b></span><br><span>mouse#</span>212<br><span>phase</span>move<br><span>phase</span>mousemove<br><span>clientX/Y</span>480/394<br></div>
+      <div id="mouse"><span><b>mouse</b></span><br><span>mouse#</span>212<br><span>phase</span>move<br><span>phase</span>mousemove<br><span>clientX/Y</span>480/394<br></div>
       <div id="touch"></div>
       <div id="transformaction"></div>
       <div id="touches"></div>
@@ -137,11 +137,11 @@
     <div id="screen" style="cursor:none;position:absolute;top:0;left:0;width:2048px;height:20480px;background:rgba(255,255,255,0);z-index:1000"></div>
     <div id="debug"></div>
 
-    <div id="f0" class="touch"></div>
-    <div id="f1" class="touch"></div>
-    <div id="f2" class="touch"></div>
-    <div id="f3" class="touch"></div>
-    <div id="f4" class="touch"></div>
+    <div id="f0" class="touch off"></div>
+    <div id="f1" class="touch off"></div>
+    <div id="f2" class="touch off"></div>
+    <div id="f3" class="touch off"></div>
+    <div id="f4" class="touch off"></div>
 
     <script type="text/javascript">
       (function(){
