@@ -100,7 +100,7 @@
 		},
 		checkTouchDevice: function(){
 			try{
-				var evt = document.createEvent("TouchEvent");
+				var evt = document.createEvent('TouchEvent');
 				return evt.initTouchEvent && win.document.createTouchList;
 			}catch(e){
 				return false;
@@ -108,7 +108,7 @@
 		},
 		checkMouseDevice: function(){
 			try{
-				document.createEvent("MouseEvent");
+				document.createEvent('MouseEvent');
 				return true;
 			}catch(e){
 				return false;
@@ -276,7 +276,7 @@
 		getCleanedTouchMap: function(eType)
 		{
 			var cleanedArray = [currentTouch];
-			if (eType == "touchend" || eType == "touchcancel")
+			if (eType == 'touchend' || eType == 'touchcancel')
 				cleanedArray = [];
 
 			for (var i=0; i < currentTouches.length; i++) {
