@@ -4,9 +4,6 @@
  */
 package com.changeit.wmpolyfill;
 
-import android.graphics.Point;
-import android.view.WindowManager;
-import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.os.Build;
@@ -29,7 +26,7 @@ public class WebClient extends WebViewClient {
 
 	/** A copy of the last Motion Event */
 	private MotionEvent lastMotionEvent = null;
-	
+
 	/** A String to store only the current changed event info  **/
 	private StringBuilder movedBuffer;
 
