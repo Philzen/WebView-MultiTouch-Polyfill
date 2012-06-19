@@ -1,78 +1,79 @@
 (function(){
 	var win = window,
 		currentTouches = [],
-		currentTouch = null;
+		currentTouch = null,
 		/** will be true if a polyfilled touch event has just been raised, so the listener for native touches will know */
-		justRaisedAnEvent = false;
+		justRaisedAnEvent = false,
 
-	/**
-	 * @constructor Construct Touch Object from Mouse- (or compatible) Event
-	 * @param {Event} e The Event that was fired
-	 * @param {number} id See property identifier
-	 *
-	 * @class Dummy Implementation of the W3C Touch object (Level 1)
-	 * @property {EventTarget} target
-	 * The Element on which the touch point started when it was first placed on the surface, even if the touch point has since moved outside the interactive area of that element.
-	 * @property {number} identifier
-	 * An identification number for each touch point. When a touch point becomes active, it must be assigned an identifier that is distinct from any other active touch point. While the touch point remains active, all events that refer to it must assign it the same identifier.
-	 * @property {number} screenX
-	 * The horizontal coordinate of point relative to the screen in pixels
-	 * @property {number} screenY
-	 * The vertical coordinate of point relative to the screen in pixels
-	 * @property {number} clientX
-	 * The horizontal coordinate of point relative to the viewport in pixels, excluding any scroll offset
-	 * @property {number} clientY
-	 * clientY The vertical coordinate of point relative to the viewport in pixels, excluding any scroll offset
-	 * @property {number} pageX
-	 * The horizontal coordinate of point relative to the viewport in pixels, including any scroll offset
-	 * @property {number} pageY
-	 * The vertical coordinate of point relative to the viewport in pixels, including any scroll offset
-	 */
-	var Touch = function (e) {
-
-		this.clientX = e.clientX;
-		this.clientY = e.clientY;
-		this.pageX = e.pageX;
-		this.pageY = e.pageY;
-		this.screenX = e.screenX;
-		this.screenY = e.screenY;
-
-		if (e.identifier)
-			this.identifier = e.identifier;
-		else
-			this.identifier = 0;
-
-		if (e.target)
-			this.target = e.target;
-		else
-			this.target = win.document.elementFromPoint(this.pageX, this.pageY);
 		/**
-		 * These can be seen in chrome touch emulation, not sure if they will be required for WebView
-
-		this.webkitForce = 1;
-		this.webkitRadiusX= 1;
-		this.webkitRadiusY= 1
-		this.webkitRotationAngle = 0;
-
+		* @constructor Construct Touch Object from Mouse- (or compatible) Event
+		* @param {Event} e The Event that was fired
+		* @param {number} id See property identifier
+		*
+		* @class Dummy Implementation of the W3C Touch object (Level 1)
+		* @property {EventTarget} target
+		* The Element on which the touch point started when it was first placed on the surface, even if the touch point has since moved outside the interactive area of that element.
+		* @property {number} identifier
+		* An identification number for each touch point. When a touch point becomes active, it must be assigned an identifier that is distinct from any other active touch point. While the touch point remains active, all events that refer to it must assign it the same identifier.
+		* @property {number} screenX
+		* The horizontal coordinate of point relative to the screen in pixels
+		* @property {number} screenY
+		* The vertical coordinate of point relative to the screen in pixels
+		* @property {number} clientX
+		* The horizontal coordinate of point relative to the viewport in pixels, excluding any scroll offset
+		* @property {number} clientY
+		* clientY The vertical coordinate of point relative to the viewport in pixels, excluding any scroll offset
+		* @property {number} pageX
+		* The horizontal coordinate of point relative to the viewport in pixels, including any scroll offset
+		* @property {number} pageY
+		* The vertical coordinate of point relative to the viewport in pixels, including any scroll offset
 		*/
-	}
+		Touch = function (e) {
+			this.clientX = e.clientX;
+			this.clientY = e.clientY;
+			this.pageX = e.pageX;
+			this.pageY = e.pageY;
+			this.screenX = e.screenX;
+			this.screenY = e.screenY;
+
+			if (e.identifier)
+				this.identifier = e.identifier;
+			else
+				this.identifier = 0;
+
+			if (e.target)
+				this.target = e.target;
+			else
+				this.target = win.document.elementFromPoint(this.pageX, this.pageY);
+			/**
+			* These can be seen in chrome touch emulation, further specification required
+			* (currently also not required by any application)
+			*
+				this.webkitForce = 1;
+				this.webkitRadiusX= 1;
+				this.webkitRadiusY= 1
+				this.webkitRotationAngle = 0;
+			*/
+		}
 
 	/**
-	 * Dummy Implementation of the W3C TouchList object (Level 1)
-	 * @constructor
-	 * @class
-	 * @param {array} touches an array of all touches that are currently active
-	 *
-	 * @property {number} length
-	 * the number of Touches in the list
-	 * @function {Touch} item({number} index)
-	 * returns the Touch at the specified index in the list
-	 * @function {Touch} item({number} index)
-	 * returns the first Touch item in the list whose identifier property matches the specified identifier
-	 */
+	* Dummy Implementation of the W3C TouchList object (Level 1)
+	* @constructor
+	* @class
+	* @param {array} touches an array of all touches that are currently active
+	*
+	* @property {number} length
+	* the number of Touches in the list
+	* @function {Touch} item({number} index)
+	* returns the Touch at the specified index in the list
+	* @function {Touch} item({number} index)
+	* returns the first Touch item in the list whose identifier property matches the specified identifier
+	*/
 	function TouchList (touches) {
-		var touchesLength = touches.length;
-		for (var i = 0; i < touchesLength; i++)
+		var touchesLength = touches.length,
+			i;
+
+		for (i = 0; i < touchesLength; i++)
 			this[i] = touches[i];
 
 		this.length = touchesLength;
@@ -149,8 +150,9 @@
 			}
 		},
 		_raiseTouch: function(e, eType) {
-			var evt = e;
-			var touches = this.getCleanedTouchMap(eType);
+			var evt = e,
+				touches = this.getCleanedTouchMap(eType);
+
 			if (!debug) alert(touches.length);
 			if (true == false) {
 //			if (this.knowsTouchAPI) {
@@ -200,28 +202,30 @@
 //debug(print(evt,1));
 
 			el = e.target;
-			if (el == undefined)
+			if (el)
 				el = win.document.elementFromPoint(e.clientX, e.clientY);
 
 			justRaisedAnEvent = true;
-			if (el != undefined)
+			if (el)
 				el.dispatchEvent(evt);
 			else
 				document.dispatchEvent(evt);
 		},
 		_getTouchesFromPolyfillData:function(data) {
-			var returnTouches = [];
-			var eventSkeleton = function() {
-				return {
-					identifier: undefined,
-					pageX: undefined,
-					pageY: undefined
-				};
-			}
-			var evt;
+			var returnTouches = [],
+				eventSkeleton = function() {
+					return {
+						identifier: undefined,
+						pageX: undefined,
+						pageY: undefined
+					};
+				},
+				i,
+				evt;
+
 			for (action in data) {
 				if (action == 'move') {
-					for (var i=0; i < data[action].length; i++) {
+					for (i=0; i < data[action].length; i++) {
 						for (touchId in data[action][i]) {
 							evt = eventSkeleton();
 							evt.identifier = parseInt(touchId);
@@ -280,14 +284,14 @@
 		},
 		getCleanedTouchMap: function(eType)
 		{
-			var cleanedArray = [currentTouch];
-			if (eType == 'touchend' || eType == 'touchcancel')
+			var i, touch,
 				cleanedArray = [];
 
-			for (var i=0; i < currentTouches.length; i++) {
-				if (currentTouches[i] != undefined && currentTouches[i].identifier != currentTouch.identifier)
+			for (i=0; i < currentTouches.length; i++) {
+				if (currentTouches[i])
 					cleanedArray.push(currentTouches[i]);
 			}
+
 			return cleanedArray;
 		},
 		_updateTouchMap: function(touch) {
@@ -325,9 +329,11 @@
 		 * @param {HTMLElement} targetElement The element to return any existing known touches for
 		 */
 		extractTargetTouches: function(touches, targetElement) {
-			var touch;
-			var targetTouches = [];
-			for (var i = 0; i < currentTouches.length; i++) {
+			var i,
+				touch,
+				targetTouches = [];
+
+			for (i = 0; i < currentTouches.length; i++) {
 				if ((touch = currentTouches[i]) && touch.target == targetElement) {
 					targetTouches.push(touch);
 				}
