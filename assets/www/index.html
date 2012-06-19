@@ -7,26 +7,10 @@
 		<link href="wmp.css" rel="stylesheet" type="text/css">
 
 <script type="text/javascript">
-			var nativeTapCount = 0;
-			var maxNativeTapCount = 0;
-			var tapCount = 0;
-			var maxTapCount = 0;
-			var print = function (obj, maxDepth, prefix){
-			var result = '';
-			if (!prefix) prefix='';
-			for(var key in obj){
-				if (typeof obj[key] == 'object'){
-					if (maxDepth !== undefined && maxDepth <= 1){
-						result += (prefix + key + '=object [max depth reached]\n');
-					} else {
-						result += print(obj[key], (maxDepth) ? maxDepth - 1: maxDepth, prefix + key + '.');
-					}
-				} else {
-					result += (prefix + key + '=' + obj[key] + '\n');
-				}
-			}
-			return result;
-			};
+			var totalEventCount = 0,
+				totalDebugCount = 0,
+				nativeTapCount = 0,
+				maxNativeTapCount = 0;
 
 			function tellJsWorking() {
 				divs.js.setAttribute('class', 'ok');
@@ -42,11 +26,8 @@
 			}
 
 			function touchListener(e) {
-//				console.log(e);
-//				debug(e.type + e.identifier);
 				nativeTapCount = e.touches.length;
 				updateNativeTapCount();
-//				e.preventDefault();
 			}
 
 			function updateNativeTapCount() {
