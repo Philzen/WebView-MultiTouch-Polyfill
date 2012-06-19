@@ -9,6 +9,11 @@ body {
 	font-size: 12px;
 }
 
+button {
+	z-index: 9999;
+	position: relative;
+}
+
 li {
 	padding-bottom: 4px;
 	margin-bottom: 2px;
