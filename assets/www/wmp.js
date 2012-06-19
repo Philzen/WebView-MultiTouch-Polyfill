@@ -153,7 +153,6 @@
 			var evt = e,
 				touches = this.getCleanedTouchMap(eType);
 
-			if (!debug) alert(touches.length);
 			if (true == false) {
 //			if (this.knowsTouchAPI) {
 // TODO Find reason why TouchLists are empty on phone (works as expected on rekonq, which supports all the native events)
