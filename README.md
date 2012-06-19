@@ -1,11 +1,11 @@
-![PolyFill Proof of Concept on HTC Desire Z](http://phil.timoessner.de/wmp/wmp.png)
-
 This piece of code is for you, if
 * you want to develop an HTML5 app
 * you want it to work cross-platform including Android 2.x
 * you'd like to track more than one fingertap action ("touch events")
 
 	The most well-known use for this is the pinch zoom - but you could also be developing a cool HTML5-based game that needs some multi-finger-gestures.
+
+![PolyFill Proof of Concept on HTC Desire Z](http://phil.timoessner.de/wmp/wmp.png)
 
 Some people are surprised to learn this doesn't work on many (most?) Android 2.x devices. If all of the above applies to you and you have been going crazy (like me) on the question why the heck it's not enabled on those phones, you can stop coursing and continue developing your app, because this is
 
