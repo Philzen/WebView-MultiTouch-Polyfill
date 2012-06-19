@@ -17,13 +17,13 @@ WebView MultiTouch PolyFill (WMP) is basically a few lines of Android java code 
 
 ### Roadmap
 
-**v0.1** - ~~in a couple of days~~ DONE
+**v0.1** - ~~in a couple of days~~ DONE ✓
 
 Is just ~~going to be~~ the proof of concept, a small running HTML5 recognizing more than one tap at once
 
-**v0.2** - hopefully soon
+**v0.2** - ~~hopefully soon~~ DONE ✓
 
-Make Open Layers / Google Maps pinch-zoom work
+~~Make~~ Open Layers and Google Maps pinch-zoom work
 
 **v0.x** - over time
 
