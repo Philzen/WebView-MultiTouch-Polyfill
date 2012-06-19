@@ -351,13 +351,9 @@
 	win.document.addEventListener('touchcancel', wmp.nativeTouchListener, true)
 	win.document.addEventListener('touchmove', wmp.nativeTouchListener, true)
 
-
-	win.wmp = wmp;
-	win.wmp.prototype = {
-		Touch: Touch,
-		TouchList: TouchList
-	};
+	win.WMP = {
+		polyfill: wmp.polyfill,
+		Version: '0.2beta'
+	}
 
 })();
-
-
