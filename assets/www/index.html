@@ -30,19 +30,7 @@
 
 			function tellJsWorking() {
 				divs.js.setAttribute('class', 'ok');
-				divs.js.textContent = 'Javascript works - Display ' + document.body.offsetHeight + 'x' + document.body.offsetWidth;
-			}
-
-			function tellInjectionWorking(deviceInfo, androidInfo) {
-				divs.inject.setAttribute('class', 'ok');
-				divs.inject.innerHTML = 'Injection of Javascript from Android Code works!';
-				if (deviceInfo.length > 0)
-					divs.inject.innerHTML += '<br/>Device Info read from android.os.Build:<br/>'
-							+ '<span style="font-family: monospace">' + deviceInfo + '<br/>'
-							+ androidInfo +'</span>';
-
-				divs.info.removeAttribute('class');
-				divs.info.textContent = 'Now put 1+ fingers on the screen to see how many your device recognises.';
+				divs.js.textContent = 'Javascript works - Display ' + document.body.clientHeight + 'x' + document.body.clientWidth;
 			}
 
 			function tellTouchDevice() {
@@ -51,16 +39,6 @@
 
 				divs.touch.setAttribute('class', 'ok');
 				divs.touch.innerHTML = 'This a touch device.';
-			}
-
-			function incrementTapCount() {
-				++tapCount;
-				updateTapCount();
-			}
-
-			function decrementTapCount() {
-				--tapCount;
-				updateTapCount();
 			}
 
 			function touchListener(e) {
@@ -77,22 +55,6 @@
 
 				divs.ntap.innerHTML = 'Currently recognised (touch-API): ' + nativeTapCount + ' touch(es)<ul><li>High score: ' + maxNativeTapCount + ' simultaneous touches</li></ul>';
 				divs.ntap.setAttribute('class', 'ok');
-			}
-
-
-			function updateTapCount() {
-				if (tapCount > 0)
-					divs.tap.setAttribute('class', 'ok');
-
-				if (tapCount > maxTapCount)
-					maxTapCount = tapCount;
-
-				divs.tap.innerHTML = 'Currently recognised (polyfill-able): ' + tapCount + ' touch(es)<ul><li>High score: ' + maxTapCount + ' simultaneous touches</li></ul>';
-
-				if (maxTapCount > 1) {
-					divs.info.setAttribute('class', 'awesome');
-					divs.info.innerHTML = '>2 parallel taps registered! See high scores above.</a>';
-				}
 			}
 
 			function isTouchDevice(){
@@ -115,10 +77,8 @@
 			window.onload = function() {
 				divs =  {
 					js: document.getElementById('test-js'),
-					inject: document.getElementById('test-inject'),
 					touch: document.getElementById('test-touch'),
 					ntap: document.getElementById('test-native'),
-					tap: document.getElementById('test-tap'),
 					debug: document.getElementById('debug'),
 					info: document.getElementById('info')
 				};
@@ -139,16 +99,18 @@
 			<li class="ok">Greetings, Earthling!</li>
 			<li id="test-js" class="bad">Javascript is not enabled your WebView :(</li>
 			<li id="test-touch" class="bad">This is not a Touch Device (doesn't know "TouchEvent")</li>
-			<li id="test-inject" class="hidden">Injection of Javascript from Java Code is not working :(</li>
 			<li id="test-native" class="hidden">No Javascript Touch events registered.</li>
-			<li id="test-tap" class="hidden"></li>
 		</ul>
 		<div id="info-wrapper">
 			<div id="info" class="hidden"></div>
-			<button id="ts_local" ontouchstart="window.location.href='test-pages/touchspector.html'">Nicer Touchspector</button><br/>
+			<p>Visualise your touches:</p>
+			<button id="ts_local" ontouchstart="window.location.href='test-pages/touchspector.html'">Nicer Touchspector (Local)</button><br/>
+			<p>Browse Online examples</p>
 			<button id="ts_orig" ontouchstart="window.location.href='http://scripty2.com/demos/touch/touchspector/';">Online Touchspector</button><br/>
 			<button id="OL" ontouchstart="window.location.href='http://openlayers.org/dev/examples/multitouch.html'">OL Multitouch Online</button><br/>
 			<button id="hammer" ontouchstart="window.location.href='http://eightmedia.github.com/hammer.js/#touchme'">HammerJS Gesture Test</button><br/>
+			<button id="OLmap" ontouchstart="window.location.href='http://openlayers.org/dev/examples/mobile-jq.html#mappage'">Open Layers Map</button><br/>
+			<button id="gmaps" ontouchstart="window.location.href='http://maps.google.de'">Google Maps</button><br/>
 		</div>
 		<div><pre id="debug"></pre></div>
 	</body>
