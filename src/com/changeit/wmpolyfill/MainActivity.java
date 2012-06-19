@@ -32,7 +32,7 @@ public class MainActivity extends Activity
 		getWindow().setFeatureInt( Window.FEATURE_PROGRESS, Window.PROGRESS_VISIBILITY_ON);
 
 		final Activity MyActivity = this;
-		webview.setWebChromeClient(new WebChromeClient() {
+		WebChromeClient wcc = new WebChromeClient() {
 			@Override
 			public void onProgressChanged(WebView view, int progress)
 			{
@@ -45,8 +45,8 @@ public class MainActivity extends Activity
 					MyActivity.setTitle(R.string.app_name);
 				}
 			}
-		});
-
+		};
+		webview.setWebChromeClient( wcc);
 		setContentView(webview);
     }
 }
