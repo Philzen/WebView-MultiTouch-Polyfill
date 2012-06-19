@@ -216,8 +216,8 @@
 				eventSkeleton = function() {
 					return {
 						identifier: undefined,
-						pageX: undefined,
-						pageY: undefined
+						clientX: undefined,
+						clientY: undefined
 					};
 				},
 				i,
@@ -229,8 +229,8 @@
 						for (touchId in data[action][i]) {
 							evt = eventSkeleton();
 							evt.identifier = parseInt(touchId);
-							evt.pageX = data[action][i][touchId][0];
-							evt.pageY = data[action][i][touchId][1];
+							evt.clientX = data[action][i][touchId][0];
+							evt.clientY = data[action][i][touchId][1];
 							this._fillUpEventData(evt);
 							returnTouches.push( wmp._getTouchFromEvent(evt) );
 						}
@@ -243,13 +243,13 @@
 						// it seemed impossible in tests to trigger one event with two fingers simultaneously
 						for (touchId in data[action]) {
 							evt.identifier = parseInt(touchId);
-							evt.pageX = data[action][touchId][0];
-							evt.pageY = data[action][touchId][1];
+							evt.clientX = data[action][touchId][0];
+							evt.clientY = data[action][touchId][1];
 						}
 					} else if (action == 'up' || action == 'cancel') {
 						evt.identifier =  parseInt(data[action]);
-						evt.pageX = currentTouch.pageX;
-						evt.pageY = currentTouch.pageY;
+						evt.clientX = currentTouch.clientX;
+						evt.clientY = currentTouch.clientY;
 					}
 					this._fillUpEventData(evt);
 					returnTouches.push( wmp._getTouchFromEvent(evt) );
@@ -262,10 +262,10 @@
 			if (!evt.target)
 				evt.target = win.document.elementFromPoint(evt.pageX, evt.pageY);
 			// TODO respect offset, etc... for scrolling pages (needed ?)
-			evt.screenX = evt.pageX;
-			evt.screenY = evt.pageY;
-			evt.clientX = evt.pageX;
-			evt.clientY = evt.pageY;
+			evt.screenX = evt.clientX;
+			evt.screenY = evt.clientY;
+			evt.pageX = evt.clientX + win.pageXOffset;
+			evt.pageY = evt.clientY + win.pageYOffset;
 			return evt;
 		},
 		_getTouchFromEvent:  function(e) {
