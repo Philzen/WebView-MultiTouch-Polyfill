@@ -38,7 +38,7 @@
 					return;
 
 				divs.touch.setAttribute('class', 'ok');
-				divs.touch.innerHTML = 'This a touch device.';
+				divs.touch.innerHTML = 'This is a touch device. Now use it :)';
 			}
 
 			function touchListener(e) {
@@ -92,7 +92,6 @@
 				tellTouchDevice();
 			}
 		</script>
-
 	</head>
 	<body id="body">
 		<ul>
@@ -104,13 +103,15 @@
 		<div id="info-wrapper">
 			<div id="info" class="hidden"></div>
 			<p>Visualise your touches:</p>
-			<button id="ts_local" ontouchstart="window.location.href='test-pages/touchspector.html'">Nicer Touchspector (Local)</button><br/>
-			<p>Browse Online examples</p>
+			<button id="ts_local" ontouchstart="window.location.href='test-pages/touchspector.html'">Nicer Touchspector (Local)</button><br/><br/>
+			<p>Online examples</p>
 			<button id="ts_orig" ontouchstart="window.location.href='http://scripty2.com/demos/touch/touchspector/';">Online Touchspector</button><br/>
-			<button id="OL" ontouchstart="window.location.href='http://openlayers.org/dev/examples/multitouch.html'">OL Multitouch Online</button><br/>
-			<button id="hammer" ontouchstart="window.location.href='http://eightmedia.github.com/hammer.js/#touchme'">HammerJS Gesture Test</button><br/>
-			<button id="OLmap" ontouchstart="window.location.href='http://openlayers.org/dev/examples/mobile-jq.html#mappage'">Open Layers Map</button><br/>
-			<button id="gmaps" ontouchstart="window.location.href='http://maps.google.de'">Google Maps</button><br/>
+			<button id="OL" ontouchstart="window.location.href='http://openlayers.org/dev/examples/multitouch.html'">OpenLayers Multitouch Test</button><br/><br/>
+			<button id="OLmap" ontouchstart="window.location.href='http://openlayers.org/dev/examples/mobile.html'">OpenLayers OSM Map</button><br/>
+<!-- <button id="leaflet" ontouchstart="window.location.href='http://leaflet.cloudmade.com/examples/mobile-example.html'"><br/> TODO (doesn't work) -->
+<!-- <button id="arcgis" ontouchstart="window.location.href='http://help.arcgis.com/en/webapi/javascript/arcgis/demos/mobile/mobile_simplemap.html'"><br/> TODO (doesn't work) -->
+<!-- <button id="hammer" ontouchstart="window.location.href='http://eightmedia.github.com/hammer.js/#touchme'">HammerJS Gesture Test</button><br/> TODO transform gesture recgnition seems displaced -->
+			<button id="gmaps" ontouchstart="window.location.href='http://maps.google.de'">Google Maps API</button><br/>
 		</div>
 		<div><pre id="debug"></pre></div>
 	</body>
