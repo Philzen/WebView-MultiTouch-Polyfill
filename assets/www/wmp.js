@@ -8,7 +8,6 @@
 		/**
 		* @constructor Construct Touch Object from Mouse- (or compatible) Event
 		* @param {Event} e The Event that was fired
-		* @param {number} id See property identifier
 		*
 		* @class Dummy Implementation of the W3C Touch object (Level 1)
 		* @property {EventTarget} target
@@ -105,7 +104,7 @@
 		checkTouchDevice: function(){
 			try{
 				var evt = document.createEvent('TouchEvent');
-				return evt.initTouchEvent && win.document.createTouchList;
+				return (typeof evt.initTouchEvent === "function" && typeof win.document.createTouchList === "function");
 			}catch(e){
 				return false;
 			}
@@ -136,12 +135,14 @@
 			return true;
 		},
 		nativeTouchListener: function(e) {
-			if (justRaisedAnEvent)
-				return justRaisedAnEvent = false;
+			if (justRaisedAnEvent) {
+				justRaisedAnEvent = false;
+				return;
+			}
 
-			var currentTouchEvent = e.touches[0];
-			currentTouchEvent.target = e.target;
-			currentTouch = wmp._getTouchFromEvent(e.touches[0]);
+			// TODO For polyfilling on devices natively supporting more than one touch,
+			// implement processing of complete changedTouches array
+			currentTouch = wmp._getTouchFromEvent(e.changedTouches[0]);
 			if (e.type == 'touchmove' || e.type == 'touchstart') {
 				wmp._updateTouchMap( currentTouch );
 			}
