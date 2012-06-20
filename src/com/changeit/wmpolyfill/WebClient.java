@@ -4,9 +4,9 @@
  */
 package com.changeit.wmpolyfill;
 
+import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
-import android.os.Build;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -21,7 +21,7 @@ public class WebClient extends WebViewClient {
 	public static final String VERSION = "0.2beta";
 
 	/** If TRUE, all touch events will be stopped and replaced by polyfills	 */
-	protected Boolean polyfillAlltouches = false;
+	protected Boolean polyfillAllTouches = true;
 
 	/** The number of touches already working out-of-the-box (we'll assume 1 for all devices) */
 	protected int maxNativeTouches = 1;
@@ -49,7 +49,7 @@ public class WebClient extends WebViewClient {
 					WebView view = (WebView) arg0;
 					checkMoved(view, arg1);
 
-					if (polyfillAlltouches || arg1.getPointerCount() > maxNativeTouches ) {
+					if (polyfillAllTouches || arg1.getPointerCount() > maxNativeTouches ) {
 						/* Tracking each and every move would be total javascript runtime overkill,
 						* therefore only changes by at least one pixel will be tracked
 						*/
@@ -146,8 +146,6 @@ public class WebClient extends WebViewClient {
 	}
 
 	private String getEvent(MotionEvent event) {
-		String names[] = {"DOWN", "UP", "MOVE", "CANCEL", "OUTSIDE",
-			"POINTER_DOWN", "POINTER_UP", "7?", "8?", "9?"};
 
 		StringBuilder sb = new StringBuilder();
 		int action = event.getAction();
