@@ -2,6 +2,7 @@ package com.changeit.wmpolyfill;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebChromeClient;
@@ -9,6 +10,8 @@ import android.webkit.WebView;
 
 public class MainActivity extends Activity
 {
+	WebView webview;
+
 	/** Called when the activity is first created.
 	 * @param savedInstanceState
 	 */
@@ -17,7 +20,7 @@ public class MainActivity extends Activity
     {
         super.onCreate(savedInstanceState);
 
-		WebView webview = new WebView(this);
+		webview = new WebView(this);
 		webview.setWebViewClient(new WebClient());
 		webview.getSettings().setJavaScriptEnabled(true);
 		webview.setVerticalScrollBarEnabled(false);
@@ -49,4 +52,13 @@ public class MainActivity extends Activity
 		webview.setWebChromeClient( wcc);
 		setContentView(webview);
     }
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if ((keyCode == KeyEvent.KEYCODE_BACK) && webview.canGoBack()) {
+			webview.goBack();
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
+	}
 }
