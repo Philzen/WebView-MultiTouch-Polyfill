@@ -27,18 +27,18 @@ Please visit https://github.com/Philzen/WebView-MultiTouch-Polyfill/wiki for fur
 ### Licence Information
 The author of this repository strongly sympathises with the "Non-Military Use Only" Licence model, however as this poses a logical contradiction of the open source definition, all rights are hereby granted under the Apache licence, which may be referenced here:
 
-**Licence**
+	**Licence**
 
-Copyright 2012 [P.Austermann] (https://github.com/Philzen) et. al.
+	Copyright 2012 [P.Austermann] (https://github.com/Philzen) et. al.
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+		http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
