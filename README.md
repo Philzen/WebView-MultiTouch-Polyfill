@@ -1,34 +1,44 @@
-This piece of code is for you, if
-* you want to develop an HTML5 app
-* you want it to work cross-platform including Android 2.x
-* you'd like to track more than one fingertap action ("touch events")
-
-	The most well-known use for this is the pinch zoom - but you could also be developing a cool HTML5-based game that needs some multi-finger-gestures.
-
-![PolyFill Proof of Concept on HTC Desire Z](http://phil.timoessner.de/wmp/wmp.png)
-
-Some people are surprised to learn this doesn't work on many (most?) Android 2.x devices. If all of the above applies to you and you have been going crazy (like me) on the question why the heck it's not enabled on those phones, you can stop coursing and continue developing your app, because this is
-
 # webview-multitouch-polyfill
-### A Polyfill example to enable multitouch functionality in Android 2.x HTML 5 Apps
+## A polyfill to re-enable multitouch functionality on Android 2.x HTML 5 Apps
 ------------------------------------------------------------------------------------
 
-WebView MultiTouch PolyFill (WMP) is basically a few lines of Android java code which register touch events on an `Android.WebKit.View` and pass them on to an HTML Apps' DOM via javascript calls. The example project compiles against Android 2.3.3 (API 10), but the polyfill technique employed should work on all Android 2.x Devices. That being said - i personnally only own a API 10 device, so it'd be great if you folks out there could test on other (earlier) devices as well.
+### Installation
+1. Import src/com/changeit/wmpolyfill/WebClient.java into your project
+2. Set the WebViewClient of the WebView that you want enable multitouch on to a new Instance of the WebClient class:
+`webview.setWebViewClient(new WebClient());`.
+To see the command in full context refer to src/com/changeit/wmpolyfill/MainActivity.java
 
-### Roadmap
+### Demo
+Compile the project or just start the included apk in the /bin directory.
+The Demo app includes a slightly modified version of the scripty2 Touchspector to visualise your touches,
+as well as links to Online MultiTouch examples.
 
-**v0.1** - ~~in a couple of days~~ DONE ✓
 
-Is just ~~going to be~~ the proof of concept, a small running HTML5 recognizing more than one tap at once
+### Options
+* _Boolean_	polyfillAllTouches	(default: true)
+	If true, all touches on the webview (including possible workingwill be intercepted and emulated in the polyfill.
+	NOTE: No worries - the polyfill won't interfere with any touches if the API Level is 11 or higher (Android 3+)
+* _int_		maxNativeTouches	(default: 1)
+	If polyfillAllTouches is set to false, this is the number of touches already working out-of-the-box and therefore will not be interfered with
 
-**v0.2** - ~~hopefully soon~~ DONE ✓
+### Miscellaneous
+Please visit https://github.com/Philzen/WebView-MultiTouch-Polyfill/wiki for further information and ongoing development updates.
 
-~~Make~~ Open Layers and Google Maps pinch-zoom work
+### Licence Information
+The author of this repository strongly sympathises with the "Non-Military Use Only" Licence model, however as this poses a logical contradiction of the open source definition, all rights are hereby granted under the Apache licence, which may be referenced here:
 
-**v0.x** - over time
+**Licence**
 
-Should be raising all [standard touch events](http://en.wikipedia.org/wiki/DOM_events#Touch_events) one (as in "Developer" or "My OSM Map") would expect to happen in the browser, just like on any Android 3+ or newer iPhone.
+Copyright 2012 [P.Austermann] (https://github.com/Philzen) et. al.
 
-**v1.0** - when many people have tested it on many many different android 2.x phones
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
 
-Final version of the WebClient class
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
