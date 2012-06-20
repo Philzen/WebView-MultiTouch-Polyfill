@@ -12,6 +12,10 @@ body {
 button {
 	z-index: 9999;
 	position: relative;
+	padding-left: 2em;
+	padding-right: 2em;
+	margin-left: 1em;
+	margin-right: 1em;
 }
 
 li {
