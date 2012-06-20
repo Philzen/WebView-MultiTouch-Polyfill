@@ -353,7 +353,7 @@
 
 	win.WMP = {
 		polyfill: wmp.polyfill,
-		Version: '0.2beta'
+		Version: '0.2'
 	}
 
 })();
