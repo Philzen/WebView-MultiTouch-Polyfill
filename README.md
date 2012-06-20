@@ -25,9 +25,7 @@ as well as links to Online MultiTouch examples.
 Please visit https://github.com/Philzen/WebView-MultiTouch-Polyfill/wiki for further information and ongoing development updates.
 
 ### Licence Information
-The author of this repository strongly sympathises with the "Non-Military Use Only" Licence model, however as this poses a logical contradiction of the open source definition, all rights are hereby granted under the Apache licence, which may be referenced here:
-
-	**Licence**
+The author of this repository strongly sympathises with the "Non-Military Use Only" Licence model, however as this poses a logical contradiction of the open source definition, all rights are hereby granted under the Apache licence:
 
 	Copyright 2012 [P.Austermann] (https://github.com/Philzen) et. al.
 
