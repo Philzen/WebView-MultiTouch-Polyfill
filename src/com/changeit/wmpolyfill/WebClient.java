@@ -18,7 +18,7 @@ import android.webkit.WebViewClient;
  */
 public class WebClient extends WebViewClient {
 
-	public static final String VERSION = "0.2beta";
+	public static final String VERSION = "0.2";
 
 	/** If TRUE, all touch events will be stopped and replaced by polyfills	 */
 	protected Boolean polyfillAllTouches = true;
