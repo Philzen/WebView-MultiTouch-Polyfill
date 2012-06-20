@@ -7,10 +7,10 @@
 		<link href="wmp.css" rel="stylesheet" type="text/css">
 
 <script type="text/javascript">
-			var totalEventCount = 0,
+			var totalTouchEventCount = 0,
 				totalDebugCount = 0,
-				nativeTapCount = 0,
-				maxNativeTapCount = 0;
+				currentTapCount = 0,
+				maxConcurrentTapCount = 0;
 
 			function tellJsWorking() {
 				divs.js.setAttribute('class', 'ok');
@@ -26,15 +26,17 @@
 			}
 
 			function touchListener(e) {
-				nativeTapCount = e.touches.length;
+				currentTapCount = e.touches.length;
 				updateNativeTapCount();
+				totalTouchEventCount++;
+				debug('\nTotal Touch Events ' + totalTouchEventCount, true);
 			}
 
 			function updateNativeTapCount() {
-				if (nativeTapCount > maxNativeTapCount)
-					maxNativeTapCount = nativeTapCount;
+				if (currentTapCount > maxConcurrentTapCount)
+					maxConcurrentTapCount = currentTapCount;
 
-				divs.ntap.innerHTML = 'Currently recognised (touch-API): ' + nativeTapCount + ' touch(es)<ul><li>High score: ' + maxNativeTapCount + ' simultaneous touches</li></ul>';
+				divs.ntap.innerHTML = 'Currently recognised (touch-API): ' + currentTapCount + ' touch(es)<ul><li>High score: ' + maxConcurrentTapCount + ' simultaneous touches</li></ul>';
 				divs.ntap.setAttribute('class', 'ok');
 			}
 
