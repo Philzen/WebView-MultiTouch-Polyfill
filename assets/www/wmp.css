@@ -5,7 +5,7 @@ body {
 	width: 100%;
 	height: 100%;
 	padding: 0;
-	margin: 0;
+	margin: 0 auto;
 	font-size: 12px;
 }
 
@@ -37,13 +37,11 @@ li:last-child {
 }
 
 #debug-wrapper {
-	font-family: monospace;
 	position: absolute;
 	bottom: 0;
 	height: 60%;
 	width: 100%;
 	font-size: 75%;
-	overflow: scroll;
 	vertical-align: bottom;
 }
 
@@ -55,8 +53,11 @@ li:last-child {
 }
 
 #debug {
+	font-family: monospace;
+	letter-spacing: -1px;
 	bottom: 0px;
-	background-color: rgba(0,0,0,0.8);
+	background-color: rgba(0,0,0,1);
+	opacity: 0.8;
 	color: lime;
 	padding: 10px 4px;
 	border: 2px green solid;
@@ -66,7 +67,6 @@ li:last-child {
 
 #info-wrapper {
 	position: absolute;
-	padding: 4px;
 	top:35%;
 	width: 100%;
 	height: 60px;
