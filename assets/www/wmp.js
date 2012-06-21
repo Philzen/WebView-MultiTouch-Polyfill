@@ -152,6 +152,7 @@
 		},
 		_raiseTouch: function(e, eType) {
 			var evt = e,
+				el = e.target,
 				touches = this.getCleanedTouchMap(eType);
 
 			if (true == false) {
@@ -178,17 +179,18 @@
 			} else {
 				// following two functions should ideally be TouchEvent, but FF and most desktop Webkit only know UIEvent (which also does the job)
 				evt = win.document.createEvent('Event');
-				evt.pageX = e.pageX;
-				evt.pageY = e.pageY;
-				evt.initEvent(eType, true, true, win, 0);
+				evt.initEvent(eType, true, true, document.body, 0);
 
 				/** todo reflect multi-moves on changedtouches */
 				evt.changedTouches = new TouchList( [ currentTouch ] );
 				evt.touches = new TouchList(touches);
 				evt.targetTouches = new TouchList( this.extractTargetTouches(touches, e.target) );
-				evt.target = e.target;
-				evt.identifier = (e.identifier ? e.identifier : 0);
+
+//				seems unnecessary (not included on first native touch)
+//				evt.identifier = (e.identifier ? e.identifier : 0);
+
 				this._fillUpEventData(evt);
+
 				// attach TouchEvent-Attributes not in UIEvent by default
 				evt.altKey = false;
 				evt.ctrlKey = false;
@@ -201,9 +203,9 @@
 //				evt.preventDefault();
 //debug(print(evt,1));
 
-			el = e.target;
-			if (el)
+			if (!el) {
 				el = win.document.elementFromPoint(e.clientX, e.clientY);
+			}
 
 			justRaisedAnEvent = true;
 			if (el)
@@ -213,13 +215,6 @@
 		},
 		_getTouchesFromPolyfillData:function(data) {
 			var returnTouches = [],
-				eventSkeleton = function() {
-					return {
-						identifier: undefined,
-						clientX: undefined,
-						clientY: undefined
-					};
-				},
 				i,
 				evt;
 
@@ -227,17 +222,18 @@
 				if (action == 'move') {
 					for (i=0; i < data[action].length; i++) {
 						for (touchId in data[action][i]) {
-							evt = eventSkeleton();
-							evt.identifier = parseInt(touchId);
-							evt.clientX = data[action][i][touchId][0];
-							evt.clientY = data[action][i][touchId][1];
+							evt = {
+								identifier: parseInt(touchId),
+								clientX: data[action][i][touchId][0],
+								clientY: data[action][i][touchId][1]
+							};
 							this._fillUpEventData(evt);
 							returnTouches.push( wmp._getTouchFromEvent(evt) );
 						}
 					}
 				}
 				else {
-					evt = eventSkeleton();
+					evt = {};
 					if (action == 'down') {
 						// NOTE: There is always one down event triggered per finger,
 						// it seemed impossible in tests to trigger one event with two fingers simultaneously
@@ -259,8 +255,10 @@
 			return returnTouches;
 		},
 		_fillUpEventData: function(evt) {
-			if (!evt.target)
-				evt.target = win.document.elementFromPoint(evt.pageX, evt.pageY);
+			if (!currentTouches[evt.identifier])
+				evt.target = win.document.elementFromPoint(evt.clientX, evt.clientY);
+			else
+				evt.target = currentTouches[evt.identifier].target;
 			// TODO respect offset, etc... for scrolling pages (needed ?)
 			evt.screenX = evt.clientX;
 			evt.screenY = evt.clientY;
@@ -301,7 +299,6 @@
 			delete currentTouches[touch.identifier];
 		},
 		_callCreateTouchList: function(touches) {
-			debug('createTouchList '+ touches.length);
 			/**
 				* Very very ugly implementation, required as for some reason .apply() won't work on createTouchList()
 				* (at least in WebKit - throws TypeError)
