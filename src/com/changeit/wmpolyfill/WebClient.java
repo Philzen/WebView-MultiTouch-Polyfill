@@ -31,10 +31,12 @@ public class WebClient extends WebViewClient {
 	/** A copy of the last Motion Event */
 	private MotionEvent lastMotionEvent = null;
 
+	/** True after injectWMPJs() was called */
+	private boolean isJsInjected = false;
+
 	/** A String to store only the current changed event info  **/
 	private StringBuilder movedBuffer;
 	private WebView view;
-	private boolean isJsInjected = false;
 
 	@Override
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
