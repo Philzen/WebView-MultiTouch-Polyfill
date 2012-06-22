@@ -40,13 +40,26 @@ public class WebClient extends WebViewClient {
 
 	@Override
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
+		android.util.Log.v("console", "OVERRIDEURLLOADING to " + url);
 		view.loadUrl(url);
 		return true;
 	}
 
 	@Override
+	public void onLoadResource(WebView view, String url) {
+//		android.util.Log.v("console", "loadresource_" + url);
+
+		if (url.indexOf(".html") > 0)				// Stop listening to touches when loading a new page,
+			view.setOnTouchListener(null);			// as injected functions are not available during load
+
+		isJsInjected = false;
+	}
+
+	@Override
 	public void onPageFinished(WebView view, String url)
 	{
+//		android.util.Log.v("console", "pagefinished_" + url);
+
 		if (Build.VERSION.SDK_INT <= 10) {
 			this.view = view;
 			injectWMPJs();
@@ -198,6 +211,7 @@ public class WebClient extends WebViewClient {
 				.append( getCurrentSettingsInjectionJs() );
 
 		view.loadUrl(wmpJs.toString());
+//		android.util.Log.v("console", "injecting: WMP-Script (plus: '" + getCurrentSettingsInjectionJs() + "')");
 		isJsInjected = true;
 	}
 
