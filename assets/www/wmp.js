@@ -4,6 +4,7 @@
 		currentTouch = null,
 		/** will be true if a polyfilled touch event has just been raised, so the listener for native touches will know */
 		justRaisedAnEvent = false,
+		polyfillAllTouches = true,
 
 		/**
 		* @constructor Construct Touch Object from Mouse- (or compatible) Event
@@ -337,19 +338,32 @@
 			}
 
 			return targetTouches;
+		},
+		registerNativeTouchListener: function(unregister) {
+			var func = (unregister && !polyfillAllTouches) ? 'removeEventListener' : ( (!unregister && polyfillAllTouches) ? 'addEventListener' : false );
+//			debug(func + unregister);
+			if (func) {
+				win.document[func]('touchstart'	, this.nativeTouchListener, true);
+				win.document[func]('touchend'	, this.nativeTouchListener, true);
+				win.document[func]('touchcancel', this.nativeTouchListener, true);
+				win.document[func]('touchmove'	, this.nativeTouchListener, true);
+			}
+			polyfillAllTouches = unregister;
 		}
 	}
 
 	// initialisation
 	wmp.knowsTouchAPI = wmp.checkTouchDevice();
-	// Native Events need to be tracked in order to always have a complete map of touches in javascript
-	win.document.addEventListener('touchstart', wmp.nativeTouchListener, true);
-	win.document.addEventListener('touchend', wmp.nativeTouchListener, true);
-	win.document.addEventListener('touchcancel', wmp.nativeTouchListener, true)
-	win.document.addEventListener('touchmove', wmp.nativeTouchListener, true)
+//	debug(polyfillAllTouches);
+//	debug(this.polyfillAllTouches );
+//	debug(wmp.polyfillAllTouches );
+//	debug(win.WMP.polyfillAllTouches );
+
+
 
 	win.WMP = {
 		polyfill: wmp.polyfill,
+		setPolyfillAllTouches: wmp.registerNativeTouchListener,
 		Version: '0.2'
 	}
 
