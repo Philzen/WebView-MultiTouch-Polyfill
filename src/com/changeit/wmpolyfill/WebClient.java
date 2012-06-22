@@ -19,11 +19,13 @@ import android.webkit.WebViewClient;
 public class WebClient extends WebViewClient {
 
 	public static final String VERSION = "0.2";
+	public static final String _WMPJS_ = "(function(){function h(a){var b=a.length,c;for(c=0;c<b;c++)this[c]=a[c];this.length=b}var b=window,g=[],f=null,j=!1,k=function(a){this.clientX=a.clientX;this.clientY=a.clientY;this.pageX=a.pageX;this.pageY=a.pageY;this.screenX=a.screenX;this.screenY=a.screenY;this.identifier=a.identifier?a.identifier:0;this.target=a.target?a.target:b.document.elementFromPoint(this.pageX,this.pageY)};h.prototype.item=function(a){return this[a]};var d={currentTouch:null,knowsTouchAPI:null,mapPolyfillToTouch:{down:\"touchstart\", move:\"touchmove\",up:\"touchend\",cancel:\"touchcancel\"},checkTouchDevice:function(){try{return\"function\"===typeof document.createEvent(\"TouchEvent\").initTouchEvent&&\"function\"===typeof b.document.createTouchList}catch(a){return!1}},checkMouseDevice:function(){try{return document.createEvent(\"MouseEvent\"),!0}catch(a){return!1}},polyfill:function(a){var b=d._getTouchesFromPolyfillData(a);f=b[0];for(action in a)if(\"move\"==action)for(i in b)d._updateTouchMap(b[i]);else\"down\"==action?d._updateTouchMap(f): (\"up\"==action||\"cancel\"==action)&&d._removeFromTouchMap(f);d._raiseTouch(f,d.mapPolyfillToTouch[action]);return!0},nativeTouchListener:function(a){j?j=!1:(f=d._getTouchFromEvent(a.changedTouches[0]),\"touchmove\"==a.type||\"touchstart\"==a.type?d._updateTouchMap(f):(\"touchend\"==a.type||\"touchcancel\"==a.type)&&d._removeFromTouchMap(f))},_raiseTouch:function(a,d){var c=a,e=a.target,g=this.getCleanedTouchMap(d),c=b.document.createEvent(\"Event\");c.initEvent(d,!0,!0,document.body,0);c.changedTouches=new h([f]); c.touches=new h(g);c.targetTouches=new h(this.extractTargetTouches(g,a.target));this._fillUpEventData(c);c.altKey=!1;c.ctrlKey=!1;c.metaKey=!1;c.shiftKey=!1;e||(e=b.document.elementFromPoint(a.clientX,a.clientY));j=!0;e?e.dispatchEvent(c):document.dispatchEvent(c)},_getTouchesFromPolyfillData:function(a){var b=[],c,e;for(action in a)if(\"move\"==action)for(c=0;c<a[action].length;c++)for(touchId in a[action][c])e={identifier:parseInt(touchId),clientX:a[action][c][touchId][0],clientY:a[action][c][touchId][1]}, this._fillUpEventData(e),b.push(d._getTouchFromEvent(e));else{e={};if(\"down\"==action)for(touchId in a[action])e.identifier=parseInt(touchId),e.clientX=a[action][touchId][0],e.clientY=a[action][touchId][1];else if(\"up\"==action||\"cancel\"==action)e.identifier=parseInt(a[action]),e.clientX=f.clientX,e.clientY=f.clientY;this._fillUpEventData(e);b.push(d._getTouchFromEvent(e))}return b},_fillUpEventData:function(a){a.target=g[a.identifier]?g[a.identifier].target:b.document.elementFromPoint(a.clientX,a.clientY); a.screenX=a.clientX;a.screenY=a.clientY;a.pageX=a.clientX+b.pageXOffset;a.pageY=a.clientY+b.pageYOffset;return a},_getTouchFromEvent:function(a){return this.knowsTouchAPI?b.document.createTouch(b,a.target,a.identifier?a.identifier:0,a.pageX,a.pageY,a.screenX,a.screenY):new k(a)},getTouchList:function(a){return this.knowsTouchAPI?this._callCreateTouchList(cleanedArray):new h(a)},getCleanedTouchMap:function(){var a,b=[];for(a=0;a<g.length;a++)g[a]&&b.push(g[a]);return b},_updateTouchMap:function(a){g[a.identifier]= a},_removeFromTouchMap:function(a){delete g[a.identifier]},_callCreateTouchList:function(a){switch(a.length){case 1:return b.document.createTouchList(a[0]);case 2:return b.document.createTouchList(a[0],a[1]);case 3:return b.document.createTouchList(a[0],a[1],a[2]);case 4:return b.document.createTouchList(a[0],a[1],a[2],a[3]);case 5:return b.document.createTouchList(a[0],a[1],a[2],a[3],a[4]);default:return b.document.createTouchList()}},extractTargetTouches:function(a,b){var c,d,f=[];for(c=0;c<g.length;c++)(d= g[c])&&d.target==b&&f.push(d);return f}};d.knowsTouchAPI=d.checkTouchDevice();b.document.addEventListener(\"touchstart\",d.nativeTouchListener,!0);b.document.addEventListener(\"touchend\",d.nativeTouchListener,!0);b.document.addEventListener(\"touchcancel\",d.nativeTouchListener,!0);b.document.addEventListener(\"touchmove\",d.nativeTouchListener,!0);b.WMP={polyfill:d.polyfill,Version:\"0.2\"}})();";
 
-	/** If TRUE, all touch events will be stopped and replaced by polyfills	 */
 	protected Boolean polyfillAllTouches = true;
 
-	/** The number of touches already working out-of-the-box (we'll assume 1 for all devices) */
+	protected int moveThreshold = 1;
+
+	/** The number of touches already working out-of-the-box (we'll assume at least one for all devices) */
 	protected int maxNativeTouches = 1;
 
 	/** A copy of the last Motion Event */
@@ -31,6 +33,8 @@ public class WebClient extends WebViewClient {
 
 	/** A String to store only the current changed event info  **/
 	private StringBuilder movedBuffer;
+	private WebView view;
+	private boolean isJsInjected = false;
 
 	@Override
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -42,8 +46,9 @@ public class WebClient extends WebViewClient {
 	public void onPageFinished(WebView view, String url)
 	{
 		if (Build.VERSION.SDK_INT <= 10) {
+			this.view = view;
+			injectWMPJs();
 			movedBuffer = new StringBuilder();
-			injectPolyfillJs(view);
 			view.setOnTouchListener(new View.OnTouchListener() {
 				public boolean onTouch(View arg0, MotionEvent arg1) {
 					WebView view = (WebView) arg0;
@@ -53,7 +58,7 @@ public class WebClient extends WebViewClient {
 						/* Tracking each and every move would be total javascript runtime overkill,
 						* therefore only changes by at least one pixel will be tracked
 						*/
-						if (arg1.getAction() != MotionEvent.ACTION_MOVE ||  movedBuffer.length() > 0) {
+						if (movedBuffer.length() > 0 || arg1.getAction() != MotionEvent.ACTION_MOVE) {
 							String EventJSON = getEvent(arg1);
 							view.loadUrl("javascript: WMP.polyfill(" + EventJSON + ");");
 //							view.loadUrl("javascript: debug('" + EventJSON + "');");
@@ -166,11 +171,48 @@ public class WebClient extends WebViewClient {
 		return sb.toString();
 	}
 
-	private void injectPolyfillJs(WebView view)
-	{
-		String wmpJs = "(function(){function h(a){var b=a.length,c;for(c=0;c<b;c++)this[c]=a[c];this.length=b}var b=window,g=[],f=null,j=!1,k=function(a){this.clientX=a.clientX;this.clientY=a.clientY;this.pageX=a.pageX;this.pageY=a.pageY;this.screenX=a.screenX;this.screenY=a.screenY;this.identifier=a.identifier?a.identifier:0;this.target=a.target?a.target:b.document.elementFromPoint(this.pageX,this.pageY)};h.prototype.item=function(a){return this[a]};var d={currentTouch:null,knowsTouchAPI:null,mapPolyfillToTouch:{down:\"touchstart\", move:\"touchmove\",up:\"touchend\",cancel:\"touchcancel\"},checkTouchDevice:function(){try{return\"function\"===typeof document.createEvent(\"TouchEvent\").initTouchEvent&&\"function\"===typeof b.document.createTouchList}catch(a){return!1}},checkMouseDevice:function(){try{return document.createEvent(\"MouseEvent\"),!0}catch(a){return!1}},polyfill:function(a){var b=d._getTouchesFromPolyfillData(a);f=b[0];for(action in a)if(\"move\"==action)for(i in b)d._updateTouchMap(b[i]);else\"down\"==action?d._updateTouchMap(f): (\"up\"==action||\"cancel\"==action)&&d._removeFromTouchMap(f);d._raiseTouch(f,d.mapPolyfillToTouch[action]);return!0},nativeTouchListener:function(a){j?j=!1:(f=d._getTouchFromEvent(a.changedTouches[0]),\"touchmove\"==a.type||\"touchstart\"==a.type?d._updateTouchMap(f):(\"touchend\"==a.type||\"touchcancel\"==a.type)&&d._removeFromTouchMap(f))},_raiseTouch:function(a,d){var c=a,e=a.target,g=this.getCleanedTouchMap(d),c=b.document.createEvent(\"Event\");c.initEvent(d,!0,!0,document.body,0);c.changedTouches=new h([f]); c.touches=new h(g);c.targetTouches=new h(this.extractTargetTouches(g,a.target));this._fillUpEventData(c);c.altKey=!1;c.ctrlKey=!1;c.metaKey=!1;c.shiftKey=!1;e||(e=b.document.elementFromPoint(a.clientX,a.clientY));j=!0;e?e.dispatchEvent(c):document.dispatchEvent(c)},_getTouchesFromPolyfillData:function(a){var b=[],c,e;for(action in a)if(\"move\"==action)for(c=0;c<a[action].length;c++)for(touchId in a[action][c])e={identifier:parseInt(touchId),clientX:a[action][c][touchId][0],clientY:a[action][c][touchId][1]}, this._fillUpEventData(e),b.push(d._getTouchFromEvent(e));else{e={};if(\"down\"==action)for(touchId in a[action])e.identifier=parseInt(touchId),e.clientX=a[action][touchId][0],e.clientY=a[action][touchId][1];else if(\"up\"==action||\"cancel\"==action)e.identifier=parseInt(a[action]),e.clientX=f.clientX,e.clientY=f.clientY;this._fillUpEventData(e);b.push(d._getTouchFromEvent(e))}return b},_fillUpEventData:function(a){a.target=g[a.identifier]?g[a.identifier].target:b.document.elementFromPoint(a.clientX,a.clientY); a.screenX=a.clientX;a.screenY=a.clientY;a.pageX=a.clientX+b.pageXOffset;a.pageY=a.clientY+b.pageYOffset;return a},_getTouchFromEvent:function(a){return this.knowsTouchAPI?b.document.createTouch(b,a.target,a.identifier?a.identifier:0,a.pageX,a.pageY,a.screenX,a.screenY):new k(a)},getTouchList:function(a){return this.knowsTouchAPI?this._callCreateTouchList(cleanedArray):new h(a)},getCleanedTouchMap:function(){var a,b=[];for(a=0;a<g.length;a++)g[a]&&b.push(g[a]);return b},_updateTouchMap:function(a){g[a.identifier]= a},_removeFromTouchMap:function(a){delete g[a.identifier]},_callCreateTouchList:function(a){switch(a.length){case 1:return b.document.createTouchList(a[0]);case 2:return b.document.createTouchList(a[0],a[1]);case 3:return b.document.createTouchList(a[0],a[1],a[2]);case 4:return b.document.createTouchList(a[0],a[1],a[2],a[3]);case 5:return b.document.createTouchList(a[0],a[1],a[2],a[3],a[4]);default:return b.document.createTouchList()}},extractTargetTouches:function(a,b){var c,d,f=[];for(c=0;c<g.length;c++)(d= g[c])&&d.target==b&&f.push(d);return f}};d.knowsTouchAPI=d.checkTouchDevice();b.document.addEventListener(\"touchstart\",d.nativeTouchListener,!0);b.document.addEventListener(\"touchend\",d.nativeTouchListener,!0);b.document.addEventListener(\"touchcancel\",d.nativeTouchListener,!0);b.document.addEventListener(\"touchmove\",d.nativeTouchListener,!0);b.WMP={polyfill:d.polyfill,Version:\"0.2\"}})();";
-		view.loadUrl("javascript: if (!window.WMP || WMP.Version != '" + WebClient.VERSION +"' ) " + wmpJs);
+	public boolean getPolyfillAllTouches() {
+		return polyfillAllTouches;
 	}
+
+	/**
+	 * @param polyfillAllTouches If set to TRUE, all touch events will be stopped and replaced by polyfills
+	 * @return WebClient (Fluent Interface)
+	 */
+	public WebClient setPolyfillAllTouches(boolean polyfillAllTouches)  {
+		this.polyfillAllTouches = polyfillAllTouches;
+		if (isJsInjected)
+			this.view.loadUrl("javascript:" + getCurrentSettingsInjectionJs());
+		return this;
+	}
+
+	private void injectWMPJs()
+	{
+		StringBuilder wmpJs = new StringBuilder();
+		wmpJs.append("javascript: if (!window.WMP || WMP.Version != '" )
+				.append( WebClient.VERSION)
+				.append("')")
+				.append(_WMPJS_)
+				.append( getCurrentSettingsInjectionJs() );
+
+		view.loadUrl(wmpJs.toString());
+		isJsInjected = true;
+	}
+
+	private String getCurrentSettingsInjectionJs() {
+
+		if (polyfillAllTouches != true || isJsInjected) // only needed if not true (default) or if setting was changed after initialisation
+		{
+			StringBuilder wmpJs = new StringBuilder();
+			wmpJs.append("window.WMP.setPolyfillAllTouches( ")
+					.append( polyfillAllTouches.toString() )
+					.append(" );");
+			return wmpJs.toString();
+		}
+
+		return "";
+	}
+
 
 	/**
 	 * Taken with a lot of appreciation from
