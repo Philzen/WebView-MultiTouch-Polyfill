@@ -11,19 +11,24 @@ public class Alert {
 		this.view = view;
 	}
 
-	public void show(String alertText) {
+	public void show(String alertText, String title) {
         // Obvious next step is to send javascript command
 
 		AlertDialog alertDialog = new AlertDialog.Builder(this.view.getContext()).create();
-		alertDialog.setTitle("Reset...");
 		alertDialog.setMessage( alertText );
+		alertDialog.setTitle( title );
 		alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
-		public void onClick(DialogInterface dialog, int which) {
-			// here you can add functions
-		}
+			public void onClick(DialogInterface dialog, int which) {
+				// here you can add functions
+			}
 		});
 		alertDialog.show();
 	}
+
+	public void show(String alertText) {
+		show(alertText, "Info");
+	}
+
 }
 
 
