@@ -98,27 +98,29 @@ public class WebClient extends WebViewClient {
 	 */
 	private boolean checkMoved(WebView view, MotionEvent event) {
 		int actionCode = event.getAction() & MotionEvent.ACTION_MASK;
-		movedBuffer.setLength(0);
-		if (lastMotionEvent == null) {
-			addAllMovesToBuffer(event);
-			lastMotionEvent = MotionEvent.obtain(event);
-			return true;
-		}
+		if (actionCode == MotionEvent.ACTION_MOVE) {
+			movedBuffer.setLength(0);
+			if (lastMotionEvent == null) {
+				addAllMovesToBuffer(event);
+				lastMotionEvent = MotionEvent.obtain(event);
+				return true;
+			}
 
-		for (int i = 0; i < event.getPointerCount(); i++)
-		{
-			if ( (int)lastMotionEvent.getX(i) == (int)event.getX(i)
-				&& (int)lastMotionEvent.getY(i) == (int)event.getY(i)
-				// Ignore Events outside of viewport
-				|| (int)event.getX(i) > view.getWidth()
-				|| (int)event.getY(i) > view.getHeight())
-				continue;
+			for (int i = 0; i < event.getPointerCount(); i++)
+			{
+				if ( (int)lastMotionEvent.getX(i) == (int)event.getX(i)
+					&& (int)lastMotionEvent.getY(i) == (int)event.getY(i)
+					// Ignore Events outside of viewport
+					|| (int)event.getX(i) > view.getWidth()
+					|| (int)event.getY(i) > view.getHeight())
+					continue;
 
-			addMoveToBuffer(event, i);
-		}
-		if (movedBuffer.length() > 0) {
-			lastMotionEvent = MotionEvent.obtain(event);
-			return true;
+				addMoveToBuffer(event, i);
+			}
+			if (movedBuffer.length() > 0) {
+				lastMotionEvent = MotionEvent.obtain(event);
+				return true;
+			}
 		}
 		return false;
 	}
@@ -129,6 +131,7 @@ public class WebClient extends WebViewClient {
 	 * @return
 	 */
 	private void addMoveToBuffer(MotionEvent event, int pointerIndex) {
+
 		if (movedBuffer.length() > 0) {
 			movedBuffer.append(",");
 		}
