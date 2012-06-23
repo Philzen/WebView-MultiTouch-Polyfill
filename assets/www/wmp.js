@@ -1,9 +1,15 @@
 (function(){
 	var win = window,
+		/**
+		 * @type Array.<Touch>
+		 * @private
+		 */
 		currentTouches = [],
+		/**
+		 * @type Touch
+		 * @private
+		 */
 		currentTouch = null,
-		/** will be true if a polyfilled touch event has just been raised, so the listener for native touches will know */
-		justRaisedAnEvent = false,
 		polyfillAllTouches = true,
 
 		/**
@@ -136,10 +142,11 @@
 			return true;
 		},
 		nativeTouchListener: function(e) {
-			if (justRaisedAnEvent) {
-				justRaisedAnEvent = false;
+			if (e.isPolyfilled) {
+//				console.log("Caught own " + e.type)
 				return;
 			}
+//			console.log("Caught native " + e.type)
 
 			// TODO For polyfilling on devices natively supporting more than one touch,
 			// implement processing of complete changedTouches array
@@ -151,6 +158,7 @@
 				wmp._removeFromTouchMap( currentTouch );
 			}
 		},
+		/** @private */
 		_raiseTouch: function(e, eType) {
 			var evt = e,
 				el = e.target,
@@ -171,12 +179,12 @@
 
 				/** todo reflect multi-moves on changedtouches (3rd argument) */
 				evt.initTouchEvent( this._callCreateTouchList(touches),
-					this._callCreateTouchList(this.extractTargetTouches(touches, e.target)),
+					this._callCreateTouchList(this.getTargetTouches(e.target)),
 					this._callCreateTouchList( [currentTouch] ), eType, win,
 					e.screenX, e.screenY, e.clientX, e.clientY,
 					false, false, false, false);
 
-				console.log(evt.touches);
+//				console.log(evt.touches);
 			} else {
 				// following two functions should ideally be TouchEvent, but FF and most desktop Webkit only know UIEvent (which also does the job)
 				evt = win.document.createEvent('Event');
@@ -185,7 +193,7 @@
 				/** todo reflect multi-moves on changedtouches */
 				evt.changedTouches = new TouchList( [ currentTouch ] );
 				evt.touches = new TouchList(touches);
-				evt.targetTouches = new TouchList( this.extractTargetTouches(touches, e.target) );
+				evt.targetTouches = new TouchList( this.getTargetTouches(e.target) );
 
 //				seems unnecessary (not included on first native touch)
 //				evt.identifier = (e.identifier ? e.identifier : 0);
@@ -197,23 +205,23 @@
 				evt.ctrlKey = false;
 				evt.metaKey = false;
 				evt.shiftKey = false;
+				evt.isPolyfilled = true;
 			}
-//console.log(e, evt);
-//		TODO Check which events need preventDefault ("up" is a hot candidate)
-//			if (evt.type == 'touchdown')
-//				evt.preventDefault();
-//debug(print(evt,1));
+
+//		TODO Check which if any events could NEED preventDefault at this early point (should be done in appcode not WMP)
+
+//			console.log('raising Touch ' + evt.type + ' (currently ' + evt.touches.length)
 
 			if (!el) {
 				el = win.document.elementFromPoint(e.clientX, e.clientY);
 			}
 
-			justRaisedAnEvent = true;
 			if (el)
 				el.dispatchEvent(evt);
 			else
 				document.dispatchEvent(evt);
 		},
+		/** @private */
 		_getTouchesFromPolyfillData:function(data) {
 			var returnTouches = [],
 				i,
@@ -255,6 +263,7 @@
 
 			return returnTouches;
 		},
+		/** @private */
 		_fillUpEventData: function(evt) {
 			if (!currentTouches[evt.identifier])
 				evt.target = win.document.elementFromPoint(evt.clientX, evt.clientY);
@@ -275,15 +284,17 @@
 			} else
 				return new Touch(e);
 		},
+		/** @protected */
 		getTouchList: function(touchesArray) {
 			if (this.knowsTouchAPI)
 				return this._callCreateTouchList(cleanedArray);
 
 			return new TouchList(touchesArray);
 		},
+		/** @protected */
 		getCleanedTouchMap: function(eType)
 		{
-			var i, touch,
+			var i,
 				cleanedArray = [];
 
 			for (i=0; i < currentTouches.length; i++) {
@@ -293,12 +304,15 @@
 
 			return cleanedArray;
 		},
+		/** @private */
 		_updateTouchMap: function(touch) {
 			currentTouches[touch.identifier] = touch;
 		},
+		/** @private */
 		_removeFromTouchMap: function(touch) {
 			delete currentTouches[touch.identifier];
 		},
+		/** @private */
 		_callCreateTouchList: function(touches) {
 			/**
 				* Very very ugly implementation, required as for some reason .apply() won't work on createTouchList()
@@ -321,12 +335,12 @@
 			}
 		},
 		/**
-		 * Extract an array of touches with every point of contact that is touching the surface
-		 * AND started on the targetElement (of the current event)
-		 * @param {Array} touches An Array of Touch Objects
+		 * Extract an array from the currentTouches array which
+		 * started on the targetElement (of the current event)
 		 * @param {HTMLElement} targetElement The element to return any existing known touches for
+		 * @protected
 		 */
-		extractTargetTouches: function(touches, targetElement) {
+		getTargetTouches: function(targetElement) {
 			var i,
 				touch,
 				targetTouches = [];
@@ -341,12 +355,12 @@
 		},
 		registerNativeTouchListener: function(unregister) {
 			var func = (unregister && !polyfillAllTouches) ? 'removeEventListener' : ( (!unregister && polyfillAllTouches) ? 'addEventListener' : false );
-//			debug(func + unregister);
+//			console.log(func + " " + unregister);
 			if (func) {
-				win.document[func]('touchstart'	, this.nativeTouchListener, true);
-				win.document[func]('touchend'	, this.nativeTouchListener, true);
-				win.document[func]('touchcancel', this.nativeTouchListener, true);
-				win.document[func]('touchmove'	, this.nativeTouchListener, true);
+				win.document[func]('touchstart'	, wmp.nativeTouchListener, true);
+				win.document[func]('touchend'	, wmp.nativeTouchListener, true);
+				win.document[func]('touchcancel', wmp.nativeTouchListener, true);
+				win.document[func]('touchmove'	, wmp.nativeTouchListener, true);
 			}
 			polyfillAllTouches = unregister;
 		}
