@@ -67,8 +67,7 @@ public class WebClient extends WebViewClient {
 			view.setOnTouchListener(new View.OnTouchListener() {
 				public boolean onTouch(View arg0, MotionEvent arg1) {
 					WebView view = (WebView) arg0;
-
-					if (polyfillAllTouches || arg1.getPointerCount() > maxNativeTouches ) {
+					if (polyfillAllTouches || arg1.getPointerCount() > maxNativeTouches || arg1.getPointerId( arg1.getActionIndex() ) + 1 > maxNativeTouches ) {
 						checkMoved(view, arg1);
 						/* Tracking each and every move would be total javascript runtime overkill,
 						* therefore only changes by at least one pixel will be tracked
@@ -76,6 +75,7 @@ public class WebClient extends WebViewClient {
 						if (movedBuffer.length() > 0 || arg1.getAction() != MotionEvent.ACTION_MOVE) {
 							String EventJSON = getEvent(arg1);
 							view.loadUrl("javascript: WMP.polyfill(" + EventJSON + ");");
+
 //							android.util.Log.d("debug-console", EventJSON);
 						}
 						return true;
