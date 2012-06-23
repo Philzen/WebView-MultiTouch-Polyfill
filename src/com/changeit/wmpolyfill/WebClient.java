@@ -5,7 +5,6 @@
 package com.changeit.wmpolyfill;
 
 import android.os.Build;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebView;
@@ -41,7 +40,7 @@ public class WebClient extends WebViewClient {
 
 	@Override
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
-		android.util.Log.v("console", "OVERRIDEURLLOADING to " + url);
+//		android.util.Log.v("console", "OVERRIDEURLLOADING to " + url);
 		view.loadUrl(url);
 		return true;
 	}
@@ -59,7 +58,7 @@ public class WebClient extends WebViewClient {
 	@Override
 	public void onPageFinished(WebView view, String url)
 	{
-		android.util.Log.v("console", "pagefinished_" + url);
+//		android.util.Log.v("console", "pagefinished_" + url);
 
 		if (Build.VERSION.SDK_INT <= 10) {
 			this.view = view;
@@ -77,7 +76,7 @@ public class WebClient extends WebViewClient {
 						if (movedBuffer.length() > 0 || arg1.getAction() != MotionEvent.ACTION_MOVE) {
 							String EventJSON = getEvent(arg1);
 							view.loadUrl("javascript: WMP.polyfill(" + EventJSON + ");");
-							android.util.Log.d("debug-console", EventJSON);
+//							android.util.Log.d("debug-console", EventJSON);
 						}
 						return true;
 					}
