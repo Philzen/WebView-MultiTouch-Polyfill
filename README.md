@@ -10,8 +10,10 @@ This piece of code is for you, if
 ### Installation
 1. Import src/com/changeit/wmpolyfill/WebClient.java into your project
 2. Set the WebViewClient of the WebView that you want enable multitouch on to a new Instance of the WebClient class:
+
         WebClient wmp = new WebClient()
         webview.setWebViewClient( wmp );
+
 To see the command in full context refer to src/com/changeit/wmpolyfill/MainActivity.java
 
 ### Demo
