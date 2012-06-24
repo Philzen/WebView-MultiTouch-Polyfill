@@ -46,7 +46,7 @@ public class MainActivity extends Activity
 			public void onProgressChanged(WebView view, int progress)
 			{
 				//Make the bar disappear after URL is loaded, and changes string to Loading...
-				MyActivity.setTitle("Loading...");
+				MyActivity.setTitle("Loading " + view.getUrl() + " ... ");
 				MyActivity.setProgress(progress * 100); //Make the bar disappear after URL is loaded
 
 				// Return the app name after finish loading
@@ -63,7 +63,7 @@ public class MainActivity extends Activity
 
 			@Override	// enable console.log javascript environment, will be sent to adb logcat
         	public void onConsoleMessage(String message, int lineNumber, String sourceID) {
-        	    Log.v("javascript console message", message + " [Line "
+        	    Log.v("wmp.console", message + " [Line "
         	                         + lineNumber + "], Source: "
         	                         + sourceID );
 			}
