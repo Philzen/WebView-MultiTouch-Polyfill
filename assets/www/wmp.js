@@ -378,7 +378,7 @@
 	win.WMP = {
 		polyfill: wmp.polyfill,
 		setPolyfillAllTouches: wmp.registerNativeTouchListener,
-		Version: '0.2'
+		Version: '0.2.1'
 	}
 
 })();
