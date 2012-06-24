@@ -9,9 +9,16 @@
 <script type="text/javascript">
 			var totalTouchEventCount = 0,
 				totalDebugCount = 0,
-				debugMsgArray = ['Debug Messages:'],
+				debugMsgArray = ['Debug Messages:', ''],
 				currentTapCount = 0,
-				maxConcurrentTapCount = 0;
+				maxConcurrentTapCount = 0,
+				divs;
+
+			function preventDefaultScroll(event) {
+				event.preventDefault();
+				window.scroll(0,0);
+				return false;
+			}
 
 			function tellJsWorking() {
 				divs.js.setAttribute('class', 'ok');
@@ -30,14 +37,21 @@
 			 * @param {Event}
 			 */
 			function touchListener(e) {
-				currentTapCount = e.touches.length;
-				updateNativeTapCount();
-				totalTouchEventCount++;
+				// prevent unnerving default gestures (scrolling || automatic number selection for placing a call)
+//				if (e.type == 'touchmove')
+					preventDefaultScroll(e);
 
-				debug(
-					'Event Info (id, target, cX, cY, pX, pY, sX, sY): <br>'
-						+ e.identifier + ', ' + e.target + ', ' + e.clientX + ', ' + e.clientY + ', ' + e.pageX + ', ' + e.pageY + ', ' + e.screenX + ', '+ e.screenY
-				);
+				if (e.type.substr(0,5) == 'touch') {
+					currentTapCount = e.touches.length;
+					updateNativeTapCount();
+					totalTouchEventCount++;
+				}
+
+//				console.log (e.type);
+//				debug(
+//					'Event Info (id, target, cX, cY, pX, pY, sX, sY): <br>'
+//						+ e.identifier + ', ' + e.target + ', ' + e.clientX + ', ' + e.clientY + ', ' + e.pageX + ', ' + e.pageY + ', ' + e.screenX + ', '+ e.screenY
+//				);
 			}
 
 			function updateNativeTapCount() {
@@ -64,10 +78,10 @@
 				debug ('!!! No Polyfill Javascript detected :s');
 			}
 
-			function debug(text, startNewLog)
+			function debug(text)
 			{
 				totalDebugCount++;
-				debugMsgArray.push( Date.now() + '&nbsp;&nbsp;' + text);
+				debugMsgArray.push( Date.now() +	'&nbsp;&nbsp;' + text);
 
 				if (totalDebugCount > 10 )
 					debugMsgArray.shift();
@@ -84,11 +98,18 @@
 					info: document.getElementById('info')
 				};
 
-				debug('', true); // Refresh / Activate Debug Window
+				// add TouchEvent Listener
 				addEventListener('touchstart', touchListener, true);
 				addEventListener('touchend', touchListener, true);
 				addEventListener('touchmove', touchListener, true);
 				addEventListener('touchcancel', touchListener, true);
+
+				// also look for mouse events emulated by the device
+				addEventListener('mousedown', touchListener, true);
+				addEventListener('mouseup', touchListener, true);
+				addEventListener('mousemove', touchListener, true);
+				addEventListener('mousecancel', touchListener, true);
+				addEventListener('mouseover', touchListener, true);
 
 				tellJsWorking();
 				tellTouchDevice();
@@ -108,18 +129,26 @@
 			<div id="info" class="hidden"></div>
 			<p>Visualise your touches:<button id="ts_local" ontouchstart="window.location.href='test-pages/touchspector.html'">Touchspector (Local)</button></p>
 			<br/>
-			<p>Online examples:
-			<button id="ts_orig" ontouchstart="window.location.href='http://scripty2.com/demos/touch/touchspector/';">scripty2 Touchspector</button>
-			<button id="OL" ontouchstart="window.location.href='http://openlayers.org/dev/examples/multitouch.html'">OpenLayers Multitouch Test</button><br/>
+			<p>Online Touch examples:
+				<button id="ts_orig" ontouchstart="window.location.href='http://scripty2.com/demos/touch/touchspector/';">scripty2 Touchspector</button>
+				<button id="OL" ontouchstart="window.location.href='http://openlayers.org/dev/examples/multitouch.html'">OpenLayers Multitouch Test</button><br/>
+				<button id="snappy_mary" ontouchstart="window.location.href='http://www.snappymaria.com/misc/TouchEventTest_v2.html'">SnappyMaria TouchTest</button>
+				<button id="wktouch" ontouchstart="window.location.href='http://miniapps.co.uk/code/wktouch/'">WK Touch</button>
+<!--				<button id="ipad_mt" ontouchstart="window.location.href='http://www.floydprice.com/wp-content/uploads/2010/09/multiTouch.htm'">Floydprice Multitouch Test</button>		-->
 			</p>
-			<p>
+			<p>Online Map examples:
 			<button id="OLmap" ontouchstart="window.location.href='http://openlayers.org/dev/examples/mobile.html'">OpenLayers OSM Map</button>
-<!-- <button id="leaflet" ontouchstart="window.location.href='http://leaflet.cloudmade.com/examples/mobile-example.html'"><br/> TODO (doesn't work) -->
-<!-- <button id="arcgis" ontouchstart="window.location.href='http://help.arcgis.com/en/webapi/javascript/arcgis/demos/mobile/mobile_simplemap.html'"><br/> TODO (doesn't work) -->
-<!-- <button id="hammer" ontouchstart="window.location.href='http://eightmedia.github.com/hammer.js/#touchme'">HammerJS Gesture Test</button><br/> TODO transform gesture recgnition seems displaced -->
 			<button id="gmaps" ontouchstart="window.location.href='http://maps.google.de'">Google API Maps</button>
+<!-- TODO Don't work as expected yet ("jumpy" gestures)		-->
+<!--				<button id="leaflet" ontouchstart="window.location.href='http://leaflet.cloudmade.com/examples/mobile-example.html'">											TODO Doesn't work  -->
+<!--				<button id="hammer" ontouchstart="window.location.href='http://eightmedia.github.com/hammer.js/#touchme'">HammerJS Gesture Test</button>						TODO transform gesture recgnition seems displaced -->
+<!--				<button id="p2fl" ontouchstart="window.location.href='http://my.page2flip.de/page2flip_beispiele/plietsch/mobile.html'">Page2Flip Web-App</button>				TODO Doesn't work  -->
 			</p>
 		</div>
+<!--		<form>
+			<input type="checkbox" id="cbxPfAll" name="cbxPfAll" checked onchange="if (window.WMP) window.WMP.setPolyfillAllTouches(cbxPfAll.checked)" />
+			<label for="cbxPfAll">Polyfill All Touches</label>
+		</form>-->
 		<div id="debug-wrapper">
 			<div>
 				<div id="debug"></div>
