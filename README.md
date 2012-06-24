@@ -5,13 +5,13 @@ A polyfill re-enabling multitouch functionality on Android 2.x HTML 5 apps
 This piece of code is for you, if
 * you want to develop an HTML5 app
 * you'd like to track more than one fingertap action ("touch events")
-* you want it to work cross-platform including Android 2.x
+* you want it to work on more pre-Android-3-phones
 
 ### Installation
 1. Import src/com/changeit/wmpolyfill/WebClient.java into your project
 2. Set the WebViewClient of the WebView that you want enable multitouch on to a new Instance of the WebClient class:
-    WebClient wmp = new WebClient()
-    webview.setWebViewClient( wmp );
+        WebClient wmp = new WebClient()
+        webview.setWebViewClient( wmp );
 To see the command in full context refer to src/com/changeit/wmpolyfill/MainActivity.java
 
 ### Demo
@@ -22,7 +22,7 @@ as well as links to Online MultiTouch examples.
 
 ### Options
 * _Boolean_	polyfillAllTouches	(default: true)
-	If true, all touches on the webview (including possible workingwill be intercepted and emulated in the polyfill.
+	If true, all touches on the webview (including natively working touches be intercepted and emulated in the polyfill.
 	NOTE: No worries - the polyfill won't interfere with any touches if the API Level is 11 or higher (Android 3+)
 * _int_		maxNativeTouches	(default: 1)
 	If polyfillAllTouches is set to false, this is the number of touches already working out-of-the-box and therefore will not be interfered with
