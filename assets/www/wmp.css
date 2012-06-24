@@ -92,3 +92,20 @@ li:last-child {
 .hidden {
 	display: none;
 }
+
+
+form {
+	border: solid 1px gray;
+	display: inline-block;
+}
+
+form:hover {
+	border: solid 1px black;
+	background-color: lightgray;
+
+}
+
+form input, form label{
+	height: 2em;
+	font-size: 2em
+}
