@@ -7,20 +7,37 @@ This piece of code is for you, if
 * you'd like to track more than one fingertap action ("touch events")
 * you want it to work on more pre-Android-3-phones
 
-### Installation
+### Demo
+Compile the project or just start the included apk in the /bin directory.
+The Demo app includes a slightly modified version of the scripty2 Touchspector to visualise your touches,
+as well as links to Online MultiTouch examples.
+
+### Enabling multitouch for own projects
 1. Import src/com/changeit/wmpolyfill/WebClient.java into your project
-2. Set the WebViewClient of the WebView that you want enable multitouch on to a new Instance of the WebClient class:
+2. Set the `WebViewClient` of the WebView that you want enable multitouch on to a new Instance of the `WebClient` class:
 
         WebClient wmp = new WebClient()
         webview.setWebViewClient( wmp );
 
 To see the command in full context refer to src/com/changeit/wmpolyfill/MainActivity.java
 
-### Demo
-Compile the project or just start the included apk in the /bin directory.
-The Demo app includes a slightly modified version of the scripty2 Touchspector to visualise your touches,
-as well as links to Online MultiTouch examples.
+### Enabling Multitouch in Phonegap projects
+### *(inside your Droidgap Activity Class)*
 
+1. see step 1. above, and additionally import src/com/changeit/wmpolyfill/PhonegapWebClient.java into your project
+2. **After** calling loadUrl in your DroidGap-Activity, replace the default `CordovaWebViewClient` of the appView object with an instance of like this
+
+		super.loadUrl("http://myawesome.app.com");
+
+		    ...
+		    ...
+		    ...
+
+		PhonegapWebClient wmp = new PhonegapWebClient(this, appView);
+		appView.setWebViewClient(wmp);
+
+Please note that at this stage this workaround hasn't been reviewed by any members of the PhoneGap community.
+Any problems / feedback regarding WMP + Phonegap is kindly to be reported at https://github.com/Philzen/cordova-android-multitouch-polyfill/issues, where a merge of WMP into phonegap is planned, once WMP is tested and mature enough.
 
 ### Options
 * _Boolean_	polyfillAllTouches	(default: true)
