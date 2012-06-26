@@ -25,15 +25,26 @@ import org.apache.cordova.CordovaWebViewClient;
 import org.apache.cordova.api.CordovaInterface;
 
 /**
- * The idea for this class originates (with many thanks!) from
- * http://stackoverflow.com/questions/2219074/in-android-webview-am-i-able-to-modify-a-webpages-dom
- *
- * @author philzen
- */
+* Phonegap-compatible version of the WMP
+* To use it, call the constructor of this class like this
+* <pre>
+* {@code
+* PhonegapWebClient wmp = new PhonegapWebClient(this, appView);
+* appView.setWebViewClient(wmp);
+* }
+* </pre>
+*	@author philzen
+*/
 public class PhonegapWebClient extends CordovaWebViewClient {
 
 	WebClient wmp;
 
+	/**
+	 * In your main activity, this constructor would be called such as:
+	 *
+	 * @param cordova
+	 * @param view
+	 */
 	public PhonegapWebClient(CordovaInterface cordova, CordovaWebView view) {
 		super(cordova, view);
 		wmp = new WebClient();
@@ -45,11 +56,35 @@ public class PhonegapWebClient extends CordovaWebViewClient {
 		wmp.onLoadResource(view, url);
 	}
 
+	/**
+	 * Event Handler called after page has been loaded.
+	 * If the API level is less than 11, then multitouch polyfill javascript is injected into DOM and eventHandler for Touches is registered
+	 *
+	 * @param view
+	 * @param url
+	 */
 	@Override
 	public void onPageFinished(WebView view, String url)
 	{
 		super.onPageFinished(view, url);
 		wmp.onPageFinished(view, url);
+	}
+
+	/**
+	 * Whether to polyfill all touches registered by the phone (true) or leave the already
+	 * working touches on the WebView through (false)
+	 *
+	 * TODO		if false, WMP doesn't interfere with the first native touch, but still polyfills all others
+	 *			as there isn't a way implemented yet to detect the number of native touches
+	 *			(thus it's currently fixed to one)
+	 *			see https://github.com/Philzen/WebView-MultiTouch-Polyfill/issues/9
+	 *
+	 * @param polyfillAllTouches
+	 * @return Fluid Interface
+	 */
+	public PhonegapWebClient setPolyfillAllTouches(boolean polyfillAllTouches) {
+		wmp.setPolyfillAllTouches(polyfillAllTouches);
+		return this;
 	}
 
 }
