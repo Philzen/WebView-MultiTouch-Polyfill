@@ -24,7 +24,7 @@ To see the command in full context refer to src/com/changeit/wmpolyfill/MainActi
 ### Enabling Multitouch in Phonegap projects *(inside your Droidgap Activity Class)*
 
 1. see step 1. above, and additionally import src/com/changeit/wmpolyfill/PhonegapWebClient.java into your project
-2. **After** calling loadUrl in your DroidGap-Activity, replace the default `CordovaWebViewClient` of the appView object with an instance of like this
+2. **After** calling loadUrl in your DroidGap-Activity, replace the default `CordovaWebViewClient` of the appView object with an instance of `PhonegapWebClient` like this
 
 		super.loadUrl("http://myawesome.app.com");
 
