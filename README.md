@@ -14,24 +14,30 @@ as well as links to Online MultiTouch examples.
 
 ### Enabling multitouch for own projects
 1. Import src/com/changeit/wmpolyfill/WebClient.java into your project
-2. Set the `WebViewClient` of the WebView that you want enable multitouch on to a new Instance of the `WebClient` class:
+2. Set the `WebViewClient` of the `WebView` that you want enable multitouch on to a new Instance of the `WebClient` class:
 
         WebClient wmp = new WebClient()
         webview.setWebViewClient( wmp );
 
 To see the command in full context refer to src/com/changeit/wmpolyfill/MainActivity.java
 
-### Enabling Multitouch in Phonegap projects *(inside your Droidgap Activity Class)*
+### Enabling Multitouch for Phonegap 1.8.x projects
 
-1. see step 1. above, and additionally import src/com/changeit/wmpolyfill/PhonegapWebClient.java into your project
-2. **After** calling loadUrl in your DroidGap-Activity, replace the default `CordovaWebViewClient` of the appView object with an instance of `PhonegapWebClient` like this
-
-		super.loadUrl("http://myawesome.app.com");
-
-		    ...
+1. Import WebClient.java and PhonegapWebClient.java from src/com/changeit/wmpolyfill/ into your project
+2. Set the `CordovaWebViewClient` of the appView object to an instance of `PhonegapWebClient` like this
 
 		PhonegapWebClient wmp = new PhonegapWebClient(this, appView);
 		appView.setWebViewClient(wmp);
+
+### Enabling Multitouch for Phonegap 1.9+ projects
+
+1. Import WebClient.java and CordovaWebClient.java from src/com/changeit/wmpolyfill/ into your project
+2. Set the `CordovaWebViewClient` of the appView object to an instance of `CordovaWebClient` like this
+
+		CordovaWebClient wmp = new CordovaWebClient(this, appView);
+		appView.setWebViewClient(wmp);
+
+
 
 Please note that at this stage this workaround hasn't been reviewed by any members of the PhoneGap community.
 Any problems / feedback regarding WMP + Phonegap is kindly to be reported at https://github.com/Philzen/cordova-android-multitouch-polyfill/issues, where a merge of WMP into phonegap is planned, once WMP is tested and mature enough.
