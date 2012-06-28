@@ -36,13 +36,34 @@ public class WebClient extends WebViewClient {
 	/** A copy of the last Motion Event */
 	private MotionEvent lastMotionEvent = null;
 
+	/** True after our fundamendal Object Variables have been defined */
+	private boolean isInitialised = false;
+
 	/** True after injectWMPJs() was called */
 	private boolean isJsInjected = false;
 
 	/** A String to store only the current changed event info  **/
-	private StringBuilder movedBuffer;
+	private StringBuilder moveBuffer;
+
 	/** Maintains a reference to the webview object for coding convenience reasons */
 	private WebView view;
+
+	/**
+	 * Set internal variables required for any further actions
+	 */
+	private void init(WebView view) {
+		if (!this.isInitialised)
+		{
+			/**
+			 * store internal reference to the webview object, so other functions in this class have access to it
+			 *
+			 * TODO Find a smarter way to do this or just live with it (feels quirky though)
+			 * @see http://stackoverflow.com/questions/11174693/android-accessing-involving-objects-members-context-from-webviewclient-as
+			 */
+			this.view = view;
+			moveBuffer = new StringBuilder();
+		}
+	}
 
 	/**
 	 * TODO Clarify: What did we need this for again? Not sure if its needed at all.
@@ -72,27 +93,18 @@ public class WebClient extends WebViewClient {
 	public void onPageFinished(WebView view, String url)
 	{
 //		android.util.Log.v("console", "pagefinished_" + url);
-
 		if (Build.VERSION.SDK_INT <= 10) {
-			/**
-			 * set our internal reference to the attached webview object, so other functions in this class have access to it
-			 *
-			 * TODO Find an answer to this: http://stackoverflow.com/questions/11174693/android-accessing-involving-objects-members-context-from-webviewclient-as or just live with it (feels quirky)
-			 */
-			this.view = view;
-
+			init(view);	// ensure internal object variables are initialised
 			injectWMPJs();
-			movedBuffer = new StringBuilder();
-			
 			view.setOnTouchListener(new View.OnTouchListener() {
 				public boolean onTouch(View arg0, MotionEvent arg1) {
 					WebView view = (WebView) arg0;
 					if (polyfillAllTouches || arg1.getPointerCount() > maxNativeTouches || arg1.getPointerId( arg1.getActionIndex() ) + 1 > maxNativeTouches ) {
-						checkMoved(view, arg1);
+						updateMoveBuffer(view, arg1);
 						/* Tracking each and every move would be total javascript runtime overkill,
 						* therefore only changes by at least one pixel will be tracked
 						*/
-						if (movedBuffer.length() > 0 || arg1.getAction() != MotionEvent.ACTION_MOVE) {
+						if (moveBuffer.length() > 0 || arg1.getAction() != MotionEvent.ACTION_MOVE) {
 							String EventJSON = getEvent(arg1);
 							view.loadUrl("javascript: WMP.polyfill(" + EventJSON + ");");
 
@@ -112,13 +124,14 @@ public class WebClient extends WebViewClient {
 	}
 
 	/**
-	 * Function to check if coordinates between two moves have changed by at least one pixel
-	 * @return
+	 * Update this.moveBuffer with any new touches of concern
+	 *
+	 * @return whether a new action has been added to the moveBuffer
 	 */
-	private boolean checkMoved(WebView view, MotionEvent event) {
+	private boolean updateMoveBuffer(WebView view, MotionEvent event) {
 		int actionCode = event.getAction() & MotionEvent.ACTION_MASK;
 		if (actionCode == MotionEvent.ACTION_MOVE ) {
-			movedBuffer.setLength(0);
+			moveBuffer.setLength(0);
 			if (lastMotionEvent == null) {
 				addAllMovesToBuffer(event);
 				lastMotionEvent = MotionEvent.obtain(event);
@@ -136,12 +149,12 @@ public class WebClient extends WebViewClient {
 
 				addMoveToBuffer(event, i);
 			}
-			if (movedBuffer.length() > 0) {
+			if (moveBuffer.length() > 0) {
 				lastMotionEvent = MotionEvent.obtain(event);
 				return true;
 			}
 		} else if (actionCode == MotionEvent.ACTION_DOWN || actionCode == MotionEvent.ACTION_POINTER_DOWN) {
-			movedBuffer.setLength(0);
+			moveBuffer.setLength(0);
 			addMoveToBuffer(event, event.getActionIndex());
 			lastMotionEvent = MotionEvent.obtain(event);
 		}
@@ -149,14 +162,15 @@ public class WebClient extends WebViewClient {
 	}
 
 	/**
-	 * Add a JSON representation of the pointer information to the JSON Move Buffer
+	 * Append a JSON representation of a pointers' position to this.moveBuffer
+	 *
 	 * @param event A motion Event
-	 * @return
+	 * @param pointerIndex The index of the pointer in the collection that we want to extract
 	 */
 	private void addMoveToBuffer(MotionEvent event, int pointerIndex) {
 
-		if (movedBuffer.length() > 0) {
-			movedBuffer.append(",");
+		if (moveBuffer.length() > 0) {
+			moveBuffer.append(",");
 		}
 
 		StringBuilder sb = new StringBuilder();
@@ -166,9 +180,14 @@ public class WebClient extends WebViewClient {
 					.append((int) event.getY(pointerIndex))
 					.append("]")
 					.append("}");
-		movedBuffer.append(sb.toString());
+		moveBuffer.append(sb.toString());
 	}
 
+	/**
+	 * Append a JSON representation of all pointer positions to this.moveBuffer
+	 *
+	 * @param event A motion Event
+	 */
 	private void addAllMovesToBuffer(MotionEvent event) {
 
 		for (int i=0; i < event.getPointerCount(); i++) {
@@ -183,10 +202,10 @@ public class WebClient extends WebViewClient {
 		int actionCode = action & MotionEvent.ACTION_MASK;
 		//sb.append("code").append( actionCode );
 		if (actionCode == MotionEvent.ACTION_MOVE) {
-			sb.append("{move:[").append(movedBuffer).append("]}");
+			sb.append("{move:[").append(moveBuffer).append("]}");
 		} else if (actionCode == MotionEvent.ACTION_POINTER_DOWN
 			|| actionCode == MotionEvent.ACTION_DOWN) {
-			sb.append("{down:").append(movedBuffer).append("}");
+			sb.append("{down:").append(moveBuffer).append("}");
 		} else if (actionCode == MotionEvent.ACTION_POINTER_UP
 			|| actionCode == MotionEvent.ACTION_UP) {
 			sb.append("{up:").append(event.getPointerId(event.getActionIndex())).append("}");
