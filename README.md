@@ -14,7 +14,7 @@ as well as links to Online MultiTouch examples.
 
 ### Enabling multitouch for own projects
 1. Import src/com/changeit/wmpolyfill/WebClient.java into your project
-2. Set the `WebViewClient` of the `WebView` that you want enable multitouch on to a new Instance of the `WebClient` class:
+2. In your Main Activity, create a new `WebClient` object and pass it to the `WebView` that you want to enable multitouch on via `setWebViewClient()`:
 
         WebClient wmp = new WebClient()
         webview.setWebViewClient( wmp );
@@ -24,7 +24,7 @@ To see the command in full context refer to src/com/changeit/wmpolyfill/MainActi
 ### Enabling Multitouch for Phonegap 1.8.x projects
 
 1. Import WebClient.java and PhonegapWebClient.java from src/com/changeit/wmpolyfill/ into your project
-2. Set the `CordovaWebViewClient` of the appView to an instance of `PhonegapWebClient` like this
+2. In your Main (`DroidGap`) Activity, Instantiate a new `PhonegapWebClient` and pass it to the `WebView` that you want to enable multitouch via `setWebViewClient()`:
 
 		PhonegapWebClient wmp = new PhonegapWebClient(this, appView);
 		appView.setWebViewClient(wmp);
@@ -32,7 +32,7 @@ To see the command in full context refer to src/com/changeit/wmpolyfill/MainActi
 ### Enabling Multitouch for Phonegap 1.9+ projects
 
 1. Import WebClient.java and CordovaWebClient.java from src/com/changeit/wmpolyfill/ into your project
-2. Set the `CordovaWebViewClient` of the appView object to an instance of `CordovaWebClient` like this
+2. In your Main (`DroidGap`) Activity, Instantiate a new `CordovaWebClient` and pass it to the `CordovaWebView` that you want to enable multitouch via `setWebViewClient()`:
 
 		CordovaWebClient wmp = new CordovaWebClient(this, appView);
 		appView.setWebViewClient(wmp);
