@@ -20,12 +20,11 @@
 package com.changeit.wmpolyfill;
 
 import android.webkit.WebView;
-import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.CordovaWebViewClient;
-import org.apache.cordova.api.CordovaInterface;
+import org.apache.cordova.DroidGap;
 
 /**
-* Phonegap-compatible version of the WMP
+* Phonegap-compatible version of the WMP, <u>for phonegap 1.8.1 and earlier</u>
 * To use it, call the constructor of this class like this
 * <pre>
 * {@code
@@ -40,14 +39,15 @@ public class PhonegapWebClient extends CordovaWebViewClient {
 	WebClient wmp;
 
 	/**
-	 * In your main activity, this constructor would be called such as:
-	 *
 	 * @param cordova
 	 * @param view
 	 */
-	public PhonegapWebClient(CordovaInterface cordova, CordovaWebView view) {
-		super(cordova, view);
+	public PhonegapWebClient(DroidGap cordova, WebView view) {
+		super(cordova);
 		wmp = new WebClient();
+
+		if (view == null)
+			cordova.init();		// Trigger initialisation of WebView and other dependent objects
 	}
 
 	@Override
@@ -75,7 +75,7 @@ public class PhonegapWebClient extends CordovaWebViewClient {
 	 * working touches on the WebView through (false)
 	 *
 	 * TODO		if false, WMP doesn't interfere with the first native touch, but still polyfills all others
-	 *			as there isn't a way implemented yet to detect the number of native touches
+	 *			as there isn't no current way to detect the number of native touches
 	 *			(thus it's currently fixed to one)
 	 *			see https://github.com/Philzen/WebView-MultiTouch-Polyfill/issues/9
 	 *
