@@ -4,7 +4,11 @@
  */
 package com.changeit.wmpolyfill;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.os.Build;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebView;
@@ -23,7 +27,8 @@ public class WebClient extends WebViewClient {
 
 	protected Boolean polyfillAllTouches = true;
 
-	protected int moveThreshold = 1;
+	/** obsolete? */
+	//protected int moveThreshold = 1;
 
 	/** The number of touches already working out-of-the-box (we'll assume at least one for all devices) */
 	protected int maxNativeTouches = 1;
@@ -186,6 +191,7 @@ public class WebClient extends WebViewClient {
 	 * @return WebClient (Fluent Interface)
 	 */
 	public WebClient setPolyfillAllTouches(boolean polyfillAllTouches)  {
+		Log.d ("wmp.console","Setting polyfill");
 		this.polyfillAllTouches = polyfillAllTouches;
 		if (isJsInjected)
 			this.view.loadUrl("javascript:" + getCurrentSettingsInjectionJs());
@@ -258,5 +264,56 @@ public class WebClient extends WebViewClient {
 		}
 		sb.append("]");
 		return sb.toString();
+	}
+
+	/**
+	 * This nested class provides getter and setter for the javascript Interface to WebClient.
+	 * Issue: https://github.com/Philzen/WebView-MultiTouch-Polyfill/issues/1 
+	 * Fell free to implement wanted Bridge functionality.
+	 * 
+	 * @author fastr
+	 *
+	 */
+	class jsInterface{		
+		/** Version **/
+		public String getVersion(){
+			return WebClient.VERSION;
+		}		
+		/** PolyfillAllTouches **/
+		public void setPolyfillAllTouches(boolean value){
+			WebClient.this.setPolyfillAllTouches(value);
+		}
+		public boolean getPolyfillAllTouches(){
+			return WebClient.this.getPolyfillAllTouches();
+		}
+		
+		/** PolyfillAllTouches **/
+		public void setMaxNativeTouches(int value){
+			if (value > 0){
+				WebClient.this.maxNativeTouches = value;
+			}
+		}
+		public int getMaxNativeTouches(){
+			return WebClient.this.maxNativeTouches;
+		}
+		
+		/** isJsInjected **/
+		public boolean isJsInjected(){
+			return WebClient.this.isJsInjected;
+		}
+		/** return JSON String of the current configuration.
+		 *  You have to JSON.parse it on javascript-side
+		 */
+		
+		public String getConfig(){		
+			String str = 
+					"{" +
+					"\"VERSION\":"				+"\""+WebClient.VERSION+ "\""+		"," +
+					"\"polyfillAllTouches\":" 	+WebClient.this.polyfillAllTouches+ "," +	
+					"\"maxNativeTouches\":" 	+WebClient.this.maxNativeTouches+ 	"," +	
+					"\"isJsInjected\":" 		+WebClient.this.isJsInjected+ 		
+					"}";
+			return str;			
+		}
 	}
 }
