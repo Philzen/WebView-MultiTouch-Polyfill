@@ -7,6 +7,7 @@ package com.changeit.wmpolyfill;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -20,6 +21,7 @@ import android.webkit.WebViewClient;
  *
  * @author philzen
  */
+
 public class WebClient extends WebViewClient {
 
 	public static final String VERSION = "0.2.1";
@@ -43,6 +45,22 @@ public class WebClient extends WebViewClient {
 	private StringBuilder movedBuffer;
 	private WebView view;
 
+	/**
+	 * Constructor 
+	 * Enables Javascript2Java an vice versa. 
+	 * Provides a javascript Object "wmpjs".
+	 * @param view
+	 */
+	public WebClient(WebView view){
+		super();
+		if (Build.VERSION.SDK_INT <= 10) {
+			this.view = view;			
+			this.view.getSettings().setJavaScriptEnabled(true);
+			this.view.addJavascriptInterface(this.new jsInterface(), "wmpjs");
+			this.view.setWebViewClient(this);			
+		}
+	}
+	
 	@Override
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
 //		android.util.Log.v("console", "OVERRIDEURLLOADING to " + url);
@@ -66,7 +84,7 @@ public class WebClient extends WebViewClient {
 //		android.util.Log.v("console", "pagefinished_" + url);
 
 		if (Build.VERSION.SDK_INT <= 10) {
-			this.view = view;
+			//this.view = view;
 			injectWMPJs();
 			movedBuffer = new StringBuilder();
 			view.setOnTouchListener(new View.OnTouchListener() {
