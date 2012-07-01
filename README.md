@@ -15,9 +15,9 @@ as well as links to Online MultiTouch examples.
 ### Enabling multitouch for own projects
 1. Import src/com/changeit/wmpolyfill/WebClient.java into your project
 2. Set the `WebViewClient` of the WebView that you want enable multitouch on to a new Instance of the `WebClient` class:
+3. Enable Javascript in WebView and Add WebClient.jsInterface as JavascriptInterface
 
-        WebClient wmp = new WebClient()
-        webview.setWebViewClient( wmp );
+        WebClient wmp = new WebClient(webview)
 
 To see the command in full context refer to src/com/changeit/wmpolyfill/MainActivity.java
 
@@ -31,7 +31,6 @@ To see the command in full context refer to src/com/changeit/wmpolyfill/MainActi
 		    ...
 
 		PhonegapWebClient wmp = new PhonegapWebClient(this, appView);
-		appView.setWebViewClient(wmp);
 
 Please note that at this stage this workaround hasn't been reviewed by any members of the PhoneGap community.
 Any problems / feedback regarding WMP + Phonegap is kindly to be reported at https://github.com/Philzen/cordova-android-multitouch-polyfill/issues, where a merge of WMP into phonegap is planned, once WMP is tested and mature enough.
