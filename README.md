@@ -15,6 +15,7 @@ as well as links to Online MultiTouch examples.
 ### Enabling multitouch for own projects
 1. Import src/com/changeit/wmpolyfill/WebClient.java into your project
 2. Instanciate a WebClient Object and hand over your webview (the new WebClient will automatic become WebClient of your WebView) 
+
         WebClient wmp = new WebClient(webview)
 
 To see the command in full context refer to src/com/changeit/wmpolyfill/MainActivity.java
