@@ -213,15 +213,13 @@
 //			console.log('raising Touch ' + evt.type + ' (currently ' + evt.touches.length)
 
 			if (!el) {
-				el = win.document.elementFromPoint(e.clientX, e.clientY);
-				
+				el = win.document.elementFromPoint(e.clientX, e.clientY);			
 			}
 
 			if (el)
 				el.dispatchEvent(evt);
 			else
 				document.dispatchEvent(evt);
-			wmpjs.testfoo();
 		},
 		/** @private */
 		_getTouchesFromPolyfillData:function(data) {
