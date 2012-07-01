@@ -47,7 +47,7 @@ public class PhonegapWebClient extends CordovaWebViewClient {
 	 */
 	public PhonegapWebClient(CordovaInterface cordova, CordovaWebView view) {
 		super(cordova, view);
-		wmp = new WebClient();
+		wmp = new WebClient(view);
 	}
 
 	@Override

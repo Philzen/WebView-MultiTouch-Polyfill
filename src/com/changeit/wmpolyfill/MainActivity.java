@@ -25,15 +25,14 @@ public class MainActivity extends Activity
         super.onCreate(savedInstanceState);
 
 		webview = new WebView(this);
-		webview.getSettings().setJavaScriptEnabled(true);
+		
 		webview.getSettings().setNavDump(true);		// re-enable console.log events for some 2.2 HTC devices
 		printFeaturesToConsole();
 
 		/** HERE the polyfill is enabled on the webview **/
-		wmp = new WebClient();
-		webview.setWebViewClient(wmp);
-		/** enabling the javascript-bridge "wmpjs" **/
-		webview.addJavascriptInterface(wmp.new jsInterface(), "wmpjs");
+		wmp = new WebClient(webview);
+		
+	
 
 		// Hide the status bar at the top
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
