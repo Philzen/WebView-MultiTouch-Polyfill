@@ -319,10 +319,10 @@ public class WebClient extends WebViewClient {
 		public boolean isJsInjected(){
 			return WebClient.this.isJsInjected;
 		}
+
 		/** return JSON String of the current configuration.
 		 *  You have to JSON.parse it on javascript-side
 		 */
-		
 		public String getConfig(){		
 			String str = 
 					"{" +
