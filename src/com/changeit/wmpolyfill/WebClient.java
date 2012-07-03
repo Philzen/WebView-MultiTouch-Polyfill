@@ -75,6 +75,9 @@ public class WebClient extends WebViewClient {
 	private ArrayList<String> updateTouches = new ArrayList<String>(); //holds touches since the last update 
 	private Timer updateTimer = new Timer(); 
 	
+	/** Reduce move events (higher value = less moveevents but jumpy */
+	private int pixelTolerance = 5; //0 = no tolerance
+	
 	@Override
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
 //		android.util.Log.v("console", "OVERRIDEURLLOADING to " + url);
@@ -163,12 +166,20 @@ public class WebClient extends WebViewClient {
 
 			for (int i = 0; i < event.getPointerCount(); i++)
 			{
-				if ( (int)lastMotionEvent.getX(i) == (int)event.getX(i)
+				/*if ( (int)lastMotionEvent.getX(i) == (int)event.getX(i)
 					&& (int)lastMotionEvent.getY(i) == (int)event.getY(i)
 					// Ignore Events outside of viewport
 					|| (int)event.getX(i) > view.getWidth()
 					|| (int)event.getY(i) > view.getHeight())
 					continue;
+*/
+				if ( 
+						Math.abs((int)lastMotionEvent.getX(i)-(int)event.getX(i)) <= pixelTolerance
+						&& Math.abs((int)lastMotionEvent.getY(i)-(int)event.getY(i)) <= pixelTolerance
+						// Ignore Events outside of viewport
+						|| (int)event.getX(i) > view.getWidth()
+						|| (int)event.getY(i) > view.getHeight())
+						continue;
 
 				addMoveToBuffer(event, i);
 			}
