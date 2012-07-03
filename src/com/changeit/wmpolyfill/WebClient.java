@@ -7,6 +7,9 @@ package com.changeit.wmpolyfill;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Timer;
+
 import android.annotation.SuppressLint;
 import android.os.Build;
 import android.util.Log;
@@ -54,6 +57,11 @@ public class WebClient extends WebViewClient {
 	/** Maintains a reference to the webview object for coding convenience reasons */
 	private WebView view;
 
+	/** Parameters for TouchUpdater */
+	private int updateRate = 60; //Framerate for updates (Default: 60 Frames per second)
+	private ArrayList<String> updateTouches = new ArrayList<String>(); //holds touches since the last update 
+	private Timer updateTimer = new Timer(); 
+	
 	/**
 	 * Constructor
 	 * Enables Javascript2Java an vice versa.
@@ -70,6 +78,7 @@ public class WebClient extends WebViewClient {
 		}
 		moveBuffer = new StringBuilder();
 	}
+
 
 	@Override
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -95,6 +104,7 @@ public class WebClient extends WebViewClient {
 		if (Build.VERSION.SDK_INT <= 10) {
 			//this.view = view;
 			injectWMPJs();
+			updateTimer.schedule(new WebClientTouchUpdater(this, view), 0, (1000/updateRate));
 			view.setOnTouchListener(new View.OnTouchListener() {
 				public boolean onTouch(View arg0, MotionEvent arg1) {
 					WebView view = (WebView) arg0;
@@ -106,12 +116,11 @@ public class WebClient extends WebViewClient {
 						if (moveBuffer.length() > 0 || arg1.getAction() != MotionEvent.ACTION_MOVE) {
 							String EventJSON = getEvent(arg1);
 							view.loadUrl("javascript: WMP.polyfill(" + EventJSON + ");");
-
+							updateTouches.add(EventJSON); // add touches to buffer for TouchUpdater
 //							android.util.Log.d("debug-console", EventJSON);
 						}
 						return true;
 					}
-
 					/**
 					* FALSE : let other handlers do their work (good if we want to test for already working touchevents)
 					* TRUE : stop propagating / bubbling event to other handlers (good if we don't want selection or zoom handlers to happen in webview)
@@ -122,6 +131,27 @@ public class WebClient extends WebViewClient {
 		}
 	}
 
+	/**
+	 * Returns the collected touches and clears the TouchBuffer
+	 * (needed for TouchUpdater)
+	 * @author fastr
+	 * @return
+	 */
+	public ArrayList<String> getTouches(){
+		ArrayList<String> tmpTouches = updateTouches;
+		updateTouches = new ArrayList<String>();
+		return tmpTouches;
+	}
+	/**
+	 * set the updateRate for the TouchUpdater
+	 * @author fastr
+	 * @param rate UpdateRate in updates per second
+	 */
+	public void setUpdateRate(int rate){
+		if (rate > 0 && rate < 160){ //check for bounding TODO: proper bounding?
+			this.updateRate = rate;
+		}
+	}
 	/**
 	 * Update this.moveBuffer with any new touches of concern
 	 *
