@@ -4,6 +4,9 @@
  */
 package com.changeit.wmpolyfill;
 
+import java.util.ArrayList;
+import java.util.Timer;
+
 import android.os.Build;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -67,6 +70,11 @@ public class WebClient extends WebViewClient {
 		moveBuffer = new StringBuilder();
 	}
 
+	/** Variables for TouchUpdater */
+	private int updateRate = 60; //Framerate for updates (Default: 60 Frames per second)
+	private ArrayList<String> updateTouches = new ArrayList<String>(); //holds touches since the last update 
+	private Timer updateTimer = new Timer(); 
+	
 	@Override
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
 //		android.util.Log.v("console", "OVERRIDEURLLOADING to " + url);
@@ -91,6 +99,7 @@ public class WebClient extends WebViewClient {
 		if (Build.VERSION.SDK_INT <= 10) {
 			//this.view = view;
 			injectWMPJs();
+			updateTimer.schedule(new WebClientTouchUpdater(this, view), 0, (1000/updateRate));
 			view.setOnTouchListener(new View.OnTouchListener() {
 				public boolean onTouch(View arg0, MotionEvent arg1) {
 					WebView view = (WebView) arg0;
@@ -101,8 +110,8 @@ public class WebClient extends WebViewClient {
 						*/
 						if (moveBuffer.length() > 0 || arg1.getAction() != MotionEvent.ACTION_MOVE) {
 							String EventJSON = getEvent(arg1);
-							view.loadUrl("javascript: WMP.polyfill(" + EventJSON + ");");
-
+							//view.loadUrl("javascript: WMP.polyfill(" + EventJSON + ");");
+							updateTouches.add(EventJSON); // add touches to buffer for TouchUpdater
 //							android.util.Log.d("debug-console", EventJSON);
 						}
 						return true;
@@ -117,7 +126,27 @@ public class WebClient extends WebViewClient {
 			});
 		}
 	}
-
+	/**
+	 * Returns the collected touches and clears the TouchBuffer
+	 * (needed for TouchUpdater)
+	 * @author fastr
+	 * @return
+	 */
+	public ArrayList<String> getTouches(){
+		ArrayList<String> tmpTouches = updateTouches;
+		updateTouches = new ArrayList<String>();
+		return tmpTouches;
+	}
+	/**
+	 * set the updateRate for the TouchUpdater
+	 * @author fastr
+	 * @param rate UpdateRate in updates per second
+	 */
+	public void setUpdateRate(int rate){
+		if (rate > 0 && rate < 160){ //check for bounding TODO: proper bounding?
+			this.updateRate = rate;
+		}
+	}
 	/**
 	 * Update this.moveBuffer with any new touches of concern
 	 *
