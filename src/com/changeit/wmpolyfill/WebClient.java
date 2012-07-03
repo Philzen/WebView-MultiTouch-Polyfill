@@ -70,7 +70,7 @@ public class WebClient extends WebViewClient {
 		moveBuffer = new StringBuilder();
 	}
 
-	/** Variables for TouchUpdater */
+	/** Parameters for TouchUpdater */
 	private int updateRate = 60; //Framerate for updates (Default: 60 Frames per second)
 	private ArrayList<String> updateTouches = new ArrayList<String>(); //holds touches since the last update 
 	private Timer updateTimer = new Timer(); 
@@ -116,7 +116,6 @@ public class WebClient extends WebViewClient {
 						}
 						return true;
 					}
-
 					/**
 					* FALSE : let other handlers do their work (good if we want to test for already working touchevents)
 					* TRUE : stop propagating / bubbling event to other handlers (good if we don't want selection or zoom handlers to happen in webview)
