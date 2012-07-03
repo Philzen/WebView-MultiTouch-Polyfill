@@ -4,6 +4,9 @@
  */
 package com.changeit.wmpolyfill;
 
+import java.util.ArrayList;
+import java.util.Timer;
+
 import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
@@ -17,6 +20,7 @@ import android.webkit.WebViewClient;
  * @author philzen
  */
 public class WebClient extends WebViewClient {
+
 
 	public static final String VERSION = "0.2.1";
 	public static final String _WMPJS_ = "(function(){function h(a){var e=a.length,c;for(c=0;c<e;c++)this[c]=a[c];this.length=e}var b=window,g=[],f=null,k=!0,l=function(a){this.clientX=a.clientX;this.clientY=a.clientY;this.pageX=a.pageX;this.pageY=a.pageY;this.screenX=a.screenX;this.screenY=a.screenY;this.identifier=a.identifier?a.identifier:0;this.target=a.target?a.target:b.document.elementFromPoint(this.pageX,this.pageY)};h.prototype.item=function(a){return this[a]};var d={currentTouch:null,knowsTouchAPI:null,mapPolyfillToTouch:{down:\"touchstart\", move:\"touchmove\",up:\"touchend\",cancel:\"touchcancel\"},checkTouchDevice:function(){try{return\"function\"===typeof document.createEvent(\"TouchEvent\").initTouchEvent&&\"function\"===typeof b.document.createTouchList}catch(a){return!1}},checkMouseDevice:function(){try{return document.createEvent(\"MouseEvent\"),!0}catch(a){return!1}},polyfill:function(a){var e=d._getTouchesFromPolyfillData(a);f=e[0];for(action in a)if(\"move\"==action)for(i in e)d._updateTouchMap(e[i]);else\"down\"==action?d._updateTouchMap(f): (\"up\"==action||\"cancel\"==action)&&d._removeFromTouchMap(f);d._raiseTouch(f,d.mapPolyfillToTouch[action]);return!0},nativeTouchListener:function(a){a.isPolyfilled||(f=d._getTouchFromEvent(a.changedTouches[0]),\"touchmove\"==a.type||\"touchstart\"==a.type?d._updateTouchMap(f):(\"touchend\"==a.type||\"touchcancel\"==a.type)&&d._removeFromTouchMap(f))},_raiseTouch:function(a,e){var c=a,j=a.target,d=this.getCleanedTouchMap(e),c=b.document.createEvent(\"Event\");c.initEvent(e,!0,!0,document.body,0);c.changedTouches= new h([f]);c.touches=new h(d);c.targetTouches=new h(this.getTargetTouches(a.target));this._fillUpEventData(c);c.altKey=!1;c.ctrlKey=!1;c.metaKey=!1;c.shiftKey=!1;c.isPolyfilled=!0;j||(j=b.document.elementFromPoint(a.clientX,a.clientY));j?j.dispatchEvent(c):document.dispatchEvent(c)},_getTouchesFromPolyfillData:function(a){var e=[],c,b;for(action in a)if(\"move\"==action)for(c=0;c<a[action].length;c++)for(touchId in a[action][c])b={identifier:parseInt(touchId),clientX:a[action][c][touchId][0],clientY:a[action][c][touchId][1]}, this._fillUpEventData(b),e.push(d._getTouchFromEvent(b));else{b={};if(\"down\"==action)for(touchId in a[action])b.identifier=parseInt(touchId),b.clientX=a[action][touchId][0],b.clientY=a[action][touchId][1];else if(\"up\"==action||\"cancel\"==action)b.identifier=parseInt(a[action]),b.clientX=f.clientX,b.clientY=f.clientY;this._fillUpEventData(b);e.push(d._getTouchFromEvent(b))}return e},_fillUpEventData:function(a){a.target=g[a.identifier]?g[a.identifier].target:b.document.elementFromPoint(a.clientX,a.clientY); a.screenX=a.clientX;a.screenY=a.clientY;a.pageX=a.clientX+b.pageXOffset;a.pageY=a.clientY+b.pageYOffset;return a},_getTouchFromEvent:function(a){return this.knowsTouchAPI?b.document.createTouch(b,a.target,a.identifier?a.identifier:0,a.pageX,a.pageY,a.screenX,a.screenY):new l(a)},getTouchList:function(a){return this.knowsTouchAPI?this._callCreateTouchList(cleanedArray):new h(a)},getCleanedTouchMap:function(){var a,b=[];for(a=0;a<g.length;a++)g[a]&&b.push(g[a]);return b},_updateTouchMap:function(a){g[a.identifier]= a},_removeFromTouchMap:function(a){delete g[a.identifier]},_callCreateTouchList:function(a){switch(a.length){case 1:return b.document.createTouchList(a[0]);case 2:return b.document.createTouchList(a[0],a[1]);case 3:return b.document.createTouchList(a[0],a[1],a[2]);case 4:return b.document.createTouchList(a[0],a[1],a[2],a[3]);case 5:return b.document.createTouchList(a[0],a[1],a[2],a[3],a[4]);default:return b.document.createTouchList()}},getTargetTouches:function(a){var b,c,d=[];for(b=0;b<g.length;b++)(c= g[b])&&c.target==a&&d.push(c);return d},registerNativeTouchListener:function(a){var e=a&&!k?\"removeEventListener\":!a&&k?\"addEventListener\":!1;e&&(b.document[e](\"touchstart\",d.nativeTouchListener,!0),b.document[e](\"touchend\",d.nativeTouchListener,!0),b.document[e](\"touchcancel\",d.nativeTouchListener,!0),b.document[e](\"touchmove\",d.nativeTouchListener,!0));k=a}};d.knowsTouchAPI=d.checkTouchDevice();b.WMP={polyfill:d.polyfill,setPolyfillAllTouches:d.registerNativeTouchListener,Version:\"0.2.1\"}})();";
@@ -38,6 +42,11 @@ public class WebClient extends WebViewClient {
 	private StringBuilder movedBuffer;
 	private WebView view;
 
+	/** Variables for TouchUpdater */
+	private int updateRate = 60; //Framerate for updates (Default: 60 Frames per second)
+	private ArrayList<String> updateTouches = new ArrayList<String>(); //holds touches since the last update 
+	private Timer updateTimer = new Timer(); 
+	
 	@Override
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
 //		android.util.Log.v("console", "OVERRIDEURLLOADING to " + url);
@@ -64,6 +73,7 @@ public class WebClient extends WebViewClient {
 			this.view = view;
 			injectWMPJs();
 			movedBuffer = new StringBuilder();
+			updateTimer.schedule(new WebClientTouchUpdater(this, view), 0, (1000/updateRate));
 			view.setOnTouchListener(new View.OnTouchListener() {
 				public boolean onTouch(View arg0, MotionEvent arg1) {
 					WebView view = (WebView) arg0;
@@ -74,8 +84,8 @@ public class WebClient extends WebViewClient {
 						*/
 						if (movedBuffer.length() > 0 || arg1.getAction() != MotionEvent.ACTION_MOVE) {
 							String EventJSON = getEvent(arg1);
-							view.loadUrl("javascript: WMP.polyfill(" + EventJSON + ");");
-
+							//view.loadUrl("javascript: WMP.polyfill(" + EventJSON + ");");
+							updateTouches.add(EventJSON); // add touches to buffer for TouchUpdater
 //							android.util.Log.d("debug-console", EventJSON);
 						}
 						return true;
@@ -90,7 +100,27 @@ public class WebClient extends WebViewClient {
 			});
 		}
 	}
-
+	/**
+	 * Returns the collected touches and clears the TouchBuffer
+	 * (needed for TouchUpdater)
+	 * @author fastr
+	 * @return
+	 */
+	public ArrayList<String> getTouches(){
+		ArrayList<String> tmpTouches = updateTouches;
+		updateTouches = new ArrayList<String>();
+		return tmpTouches;
+	}
+	/**
+	 * set the updateRate for the TouchUpdater
+	 * @author fastr
+	 * @param rate UpdateRate in updates per second
+	 */
+	public void setUpdateRate(int rate){
+		if (rate > 0 && rate < 160){ //check for bounding TODO: proper bounding?
+			this.updateRate = rate;
+		}
+	}
 	/**
 	 * Function to check if coordinates between two moves have changed by at least one pixel
 	 * @return
