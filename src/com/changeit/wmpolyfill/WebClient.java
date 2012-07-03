@@ -62,6 +62,9 @@ public class WebClient extends WebViewClient {
 	private ArrayList<String> updateTouches = new ArrayList<String>(); //holds touches since the last update 
 	private Timer updateTimer = new Timer(); 
 	
+	/** Reduce move events (higher value = less moveevents but jumpy */
+	private int pixelTolerance = 5; //0 = no tolerance
+	
 	/**
 	 * Constructor
 	 * Enables Javascript2Java an vice versa.
