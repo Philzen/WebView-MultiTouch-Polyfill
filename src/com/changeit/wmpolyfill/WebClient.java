@@ -7,6 +7,10 @@ package com.changeit.wmpolyfill;
 import java.util.ArrayList;
 import java.util.Timer;
 
+import java.util.ArrayList;
+import java.util.Timer;
+
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -53,6 +57,11 @@ public class WebClient extends WebViewClient {
 	/** Maintains a reference to the webview object for coding convenience reasons */
 	private WebView view;
 
+	/** Parameters for TouchUpdater */
+	private int updateRate = 60; //Framerate for updates (Default: 60 Frames per second)
+	private ArrayList<String> updateTouches = new ArrayList<String>(); //holds touches since the last update 
+	private Timer updateTimer = new Timer(); 
+	
 	/**
 	 * Constructor
 	 * Enables Javascript2Java an vice versa.
@@ -126,6 +135,27 @@ public class WebClient extends WebViewClient {
 					return false;
 				}
 			});
+		}
+	}
+	/**
+	 * Returns the collected touches and clears the TouchBuffer
+	 * (needed for TouchUpdater)
+	 * @author fastr
+	 * @return
+	 */
+	public ArrayList<String> getTouches(){
+		ArrayList<String> tmpTouches = updateTouches;
+		updateTouches = new ArrayList<String>();
+		return tmpTouches;
+	}
+	/**
+	 * set the updateRate for the TouchUpdater
+	 * @author fastr
+	 * @param rate UpdateRate in updates per second
+	 */
+	public void setUpdateRate(int rate){
+		if (rate > 0 && rate < 160){ //check for bounding TODO: proper bounding?
+			this.updateRate = rate;
 		}
 	}
 	/**
