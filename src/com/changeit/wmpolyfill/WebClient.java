@@ -55,21 +55,22 @@ public class WebClient extends WebViewClient {
 	private WebView view;
 
 	/**
-	 * Constructor 
-	 * Enables Javascript2Java an vice versa. 
+	 * Constructor
+	 * Enables Javascript2Java an vice versa.
 	 * Provides a javascript Object "wmpjs".
 	 * @param view
 	 */
 	public WebClient(WebView view){
 		super();
 		if (Build.VERSION.SDK_INT <= 10) {
-			this.view = view;			
+			this.view = view;
 			this.view.getSettings().setJavaScriptEnabled(true);
 			this.view.addJavascriptInterface(this.new jsInterface(), "wmpjs");
-			this.view.setWebViewClient(this);			
+			this.view.setWebViewClient(this);
 		}
+		moveBuffer = new StringBuilder();
 	}
-	
+
 	@Override
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
 //		android.util.Log.v("console", "OVERRIDEURLLOADING to " + url);
@@ -258,59 +259,19 @@ public class WebClient extends WebViewClient {
 		return "";
 	}
 
-
-	/**
-	 * Taken with a lot of appreciation from
-	 * http://www.zdnet.com/blog/burnette/how-to-use-multi-touch-in-android-2-part-3-understanding-touch-events/1775
-	 *
-	 * @param event
-	 * @return String Some information on the MotionEvent
-	 */
-	private String dumpEvent(MotionEvent event) {
-
-		String names[] = {"DOWN", "UP", "MOVE", "CANCEL", "OUTSIDE",
-			"POINTER_DOWN", "POINTER_UP", "7?", "8?", "9?"};
-		StringBuilder sb = new StringBuilder();
-		int action = event.getAction();
-		int actionCode = action & MotionEvent.ACTION_MASK;
-
-		if (actionCode == MotionEvent.ACTION_POINTER_DOWN
-				|| actionCode == MotionEvent.ACTION_POINTER_UP
-				|| actionCode == MotionEvent.ACTION_DOWN
-				|| actionCode == MotionEvent.ACTION_UP) {
-			sb.append("FINGER ").append(
-					(action >> MotionEvent.ACTION_POINTER_ID_SHIFT) + 1);
-			sb.append(": ");
-		}
-
-		sb.append("ACTION_").append(names[actionCode]);
-		sb.append(" [");
-		for (int i = 0; i < event.getPointerCount(); i++) {
-			sb.append("#").append(i);
-			sb.append("(pid_").append(event.getPointerId(i));
-			sb.append(")=").append((int) event.getX(i));
-			sb.append(",").append((int) event.getY(i));
-			if (i + 1 < event.getPointerCount()) {
-				sb.append("; ");
-			}
-		}
-		sb.append("]");
-		return sb.toString();
-	}
-
 	/**
 	 * This nested class provides getter and setter for the javascript Interface to WebClient.
-	 * Issue: https://github.com/Philzen/WebView-MultiTouch-Polyfill/issues/1 
+	 * Issue: https://github.com/Philzen/WebView-MultiTouch-Polyfill/issues/1
 	 * Fell free to implement wanted Bridge functionality.
-	 * 
+	 *
 	 * @author fastr
 	 *
 	 */
-	class jsInterface{		
+	class jsInterface{
 		/** Version **/
 		public String getVersion(){
 			return WebClient.VERSION;
-		}		
+		}
 		/** PolyfillAllTouches **/
 		public void setPolyfillAllTouches(boolean value){
 			WebClient.this.setPolyfillAllTouches(value);
@@ -318,7 +279,7 @@ public class WebClient extends WebViewClient {
 		public boolean getPolyfillAllTouches(){
 			return WebClient.this.getPolyfillAllTouches();
 		}
-		
+
 		/** PolyfillAllTouches **/
 		public void setMaxNativeTouches(int value){
 			if (value > 0){
@@ -328,7 +289,7 @@ public class WebClient extends WebViewClient {
 		public int getMaxNativeTouches(){
 			return WebClient.this.maxNativeTouches;
 		}
-		
+
 		/** isJsInjected **/
 		public boolean isJsInjected(){
 			return WebClient.this.isJsInjected;
@@ -337,15 +298,15 @@ public class WebClient extends WebViewClient {
 		/** return JSON String of the current configuration.
 		 *  You have to JSON.parse it on javascript-side
 		 */
-		public String getConfig(){		
-			String str = 
+		public String getConfig(){
+			String str =
 					"{" +
 					"\"VERSION\":"				+"\""+WebClient.VERSION+ "\""+		"," +
-					"\"polyfillAllTouches\":" 	+WebClient.this.polyfillAllTouches+ "," +	
-					"\"maxNativeTouches\":" 	+WebClient.this.maxNativeTouches+ 	"," +	
-					"\"isJsInjected\":" 		+WebClient.this.isJsInjected+ 		
+					"\"polyfillAllTouches\":" 	+WebClient.this.polyfillAllTouches+ "," +
+					"\"maxNativeTouches\":" 	+WebClient.this.maxNativeTouches+ 	"," +
+					"\"isJsInjected\":" 		+WebClient.this.isJsInjected+
 					"}";
-			return str;			
+			return str;
 		}
 	}
 }
