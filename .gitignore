@@ -18,3 +18,4 @@ local.properties
 # Local Data
 private/
 !bin/WebView-MultiTouch-Polyfill-debug.apk
+/project.properties
