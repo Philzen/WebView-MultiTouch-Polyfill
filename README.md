@@ -16,8 +16,7 @@ as well as links to Online MultiTouch examples.
 1. Import src/com/changeit/wmpolyfill/WebClient.java into your project
 2. In your Main Activity, create a new `WebClient` object and pass it to the `WebView` that you want to enable multitouch on via `setWebViewClient()`:
 
-        WebClient wmp = new WebClient()
-        webview.setWebViewClient( wmp );
+        WebClient wmp = new WebClient(webview)
 
 To see the command in full context refer to src/com/changeit/wmpolyfill/MainActivity.java
 

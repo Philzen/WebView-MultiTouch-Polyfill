@@ -4,7 +4,12 @@
  */
 package com.changeit.wmpolyfill;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.annotation.SuppressLint;
 import android.os.Build;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebView;
@@ -16,6 +21,7 @@ import android.webkit.WebViewClient;
  *
  * @author philzen
  */
+
 public class WebClient extends WebViewClient {
 
 	public static final String VERSION = "0.2.1";
@@ -27,8 +33,8 @@ public class WebClient extends WebViewClient {
 	/** @see setPolyFillAllTouches() */
 	protected Boolean polyfillAllTouches = true;
 
-	/** currently unused, just for documentation purposes */
-	protected int moveThreshold = 1;
+	/** obsolete? */
+	//protected int moveThreshold = 1;
 
 	/** The number of touches already working out-of-the-box (we'll assume at least one for all devices) */
 	protected int maxNativeTouches = 1;
@@ -49,29 +55,21 @@ public class WebClient extends WebViewClient {
 	private WebView view;
 
 	/**
-	 * Set internal variables required for any further actions
+	 * Constructor 
+	 * Enables Javascript2Java an vice versa. 
+	 * Provides a javascript Object "wmpjs".
+	 * @param view
 	 */
-	private void init(WebView view) {
-		if (!this.isInitialised)
-		{
-			/**
-			 * store internal reference to the webview object, so other functions in this class have access to it
-			 *
-			 * TODO Find a smarter way to do this or just live with it (feels quirky though)
-			 * @see http://stackoverflow.com/questions/11174693/android-accessing-involving-objects-members-context-from-webviewclient-as
-			 */
-			this.view = view;
-			moveBuffer = new StringBuilder();
+	public WebClient(WebView view){
+		super();
+		if (Build.VERSION.SDK_INT <= 10) {
+			this.view = view;			
+			this.view.getSettings().setJavaScriptEnabled(true);
+			this.view.addJavascriptInterface(this.new jsInterface(), "wmpjs");
+			this.view.setWebViewClient(this);			
 		}
 	}
-
-	/**
-	 * TODO Clarify: What did we need this for again? Not sure if its needed at all.
-	 *
-	 * @param view
-	 * @param url
-	 * @return
-	 */
+	
 	@Override
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
 //		android.util.Log.v("console", "OVERRIDEURLLOADING to " + url);
@@ -94,7 +92,7 @@ public class WebClient extends WebViewClient {
 	{
 //		android.util.Log.v("console", "pagefinished_" + url);
 		if (Build.VERSION.SDK_INT <= 10) {
-			init(view);	// ensure internal object variables are initialised
+			//this.view = view;
 			injectWMPJs();
 			view.setOnTouchListener(new View.OnTouchListener() {
 				public boolean onTouch(View arg0, MotionEvent arg1) {
@@ -225,6 +223,7 @@ public class WebClient extends WebViewClient {
 	 * @return WebClient (Fluent Interface)
 	 */
 	public WebClient setPolyfillAllTouches(boolean polyfillAllTouches)  {
+		Log.d ("wmp.console","Setting polyfill");
 		this.polyfillAllTouches = polyfillAllTouches;
 		if (isJsInjected)
 			this.view.loadUrl("javascript:" + getCurrentSettingsInjectionJs());
@@ -257,5 +256,96 @@ public class WebClient extends WebViewClient {
 		}
 
 		return "";
+	}
+
+
+	/**
+	 * Taken with a lot of appreciation from
+	 * http://www.zdnet.com/blog/burnette/how-to-use-multi-touch-in-android-2-part-3-understanding-touch-events/1775
+	 *
+	 * @param event
+	 * @return String Some information on the MotionEvent
+	 */
+	private String dumpEvent(MotionEvent event) {
+
+		String names[] = {"DOWN", "UP", "MOVE", "CANCEL", "OUTSIDE",
+			"POINTER_DOWN", "POINTER_UP", "7?", "8?", "9?"};
+		StringBuilder sb = new StringBuilder();
+		int action = event.getAction();
+		int actionCode = action & MotionEvent.ACTION_MASK;
+
+		if (actionCode == MotionEvent.ACTION_POINTER_DOWN
+				|| actionCode == MotionEvent.ACTION_POINTER_UP
+				|| actionCode == MotionEvent.ACTION_DOWN
+				|| actionCode == MotionEvent.ACTION_UP) {
+			sb.append("FINGER ").append(
+					(action >> MotionEvent.ACTION_POINTER_ID_SHIFT) + 1);
+			sb.append(": ");
+		}
+
+		sb.append("ACTION_").append(names[actionCode]);
+		sb.append(" [");
+		for (int i = 0; i < event.getPointerCount(); i++) {
+			sb.append("#").append(i);
+			sb.append("(pid_").append(event.getPointerId(i));
+			sb.append(")=").append((int) event.getX(i));
+			sb.append(",").append((int) event.getY(i));
+			if (i + 1 < event.getPointerCount()) {
+				sb.append("; ");
+			}
+		}
+		sb.append("]");
+		return sb.toString();
+	}
+
+	/**
+	 * This nested class provides getter and setter for the javascript Interface to WebClient.
+	 * Issue: https://github.com/Philzen/WebView-MultiTouch-Polyfill/issues/1 
+	 * Fell free to implement wanted Bridge functionality.
+	 * 
+	 * @author fastr
+	 *
+	 */
+	class jsInterface{		
+		/** Version **/
+		public String getVersion(){
+			return WebClient.VERSION;
+		}		
+		/** PolyfillAllTouches **/
+		public void setPolyfillAllTouches(boolean value){
+			WebClient.this.setPolyfillAllTouches(value);
+		}
+		public boolean getPolyfillAllTouches(){
+			return WebClient.this.getPolyfillAllTouches();
+		}
+		
+		/** PolyfillAllTouches **/
+		public void setMaxNativeTouches(int value){
+			if (value > 0){
+				WebClient.this.maxNativeTouches = value;
+			}
+		}
+		public int getMaxNativeTouches(){
+			return WebClient.this.maxNativeTouches;
+		}
+		
+		/** isJsInjected **/
+		public boolean isJsInjected(){
+			return WebClient.this.isJsInjected;
+		}
+
+		/** return JSON String of the current configuration.
+		 *  You have to JSON.parse it on javascript-side
+		 */
+		public String getConfig(){		
+			String str = 
+					"{" +
+					"\"VERSION\":"				+"\""+WebClient.VERSION+ "\""+		"," +
+					"\"polyfillAllTouches\":" 	+WebClient.this.polyfillAllTouches+ "," +	
+					"\"maxNativeTouches\":" 	+WebClient.this.maxNativeTouches+ 	"," +	
+					"\"isJsInjected\":" 		+WebClient.this.isJsInjected+ 		
+					"}";
+			return str;			
+		}
 	}
 }
