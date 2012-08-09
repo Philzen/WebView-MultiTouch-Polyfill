@@ -127,23 +127,31 @@
 		</ul>
 		<div id="info-wrapper">
 			<div id="info" class="hidden"></div>
-			<p>Visualise your touches:<button id="ts_local" ontouchstart="window.location.href='test-pages/touchspector.html'">Touchspector (Local)</button></p>
-			<br/>
-			<p>Online Touch examples:
-				<button id="ts_orig" ontouchstart="window.location.href='http://scripty2.com/demos/touch/touchspector/';">scripty2 Touchspector</button>
-				<button id="OL" ontouchstart="window.location.href='http://openlayers.org/dev/examples/multitouch.html'">OpenLayers Multitouch Test</button><br/>
-				<button id="snappy_mary" ontouchstart="window.location.href='http://www.snappymaria.com/misc/TouchEventTest_v2.html'">SnappyMaria TouchTest</button>
-				<button id="wktouch" ontouchstart="window.location.href='http://miniapps.co.uk/code/wktouch/'">WK Touch</button>
+			<form>
+				<fieldset>
+					<legend>Online Map examples:</legend>
+				Visualise your touches:<button id="ts_local" ontouchstart="window.location.href='test-pages/touchspector.html'">Touchspector (Local)</button>
+				</fieldset>
+				<fieldset>
+					<legend>Online Touch examples:</legend>
+						<button id="ts_orig" ontouchstart="window.location.href='http://scripty2.com/demos/touch/touchspector/';">scripty2 Touchspector</button>
+						<button id="OL" ontouchstart="window.location.href='http://openlayers.org/dev/examples/multitouch.html'">OpenLayers Multitouch Test</button><br/>
+						<button id="snappy_mary" ontouchstart="window.location.href='http://www.snappymaria.com/misc/TouchEventTest_v2.html'">SnappyMaria TouchTest</button>
+						<button id="wktouch" ontouchstart="window.location.href='http://miniapps.co.uk/code/wktouch/'">WK Touch</button>
 <!--				<button id="ipad_mt" ontouchstart="window.location.href='http://www.floydprice.com/wp-content/uploads/2010/09/multiTouch.htm'">Floydprice Multitouch Test</button>		-->
-			</p>
-			<p>Online Map examples:
-			<button id="OLmap" ontouchstart="window.location.href='http://openlayers.org/dev/examples/mobile.html'">OpenLayers OSM Map</button>
-			<button id="gmaps" ontouchstart="window.location.href='http://maps.google.de'">Google API Maps</button>
+				</fieldset>
+				<fieldset>
+					<legend>Online Map examples:</legend>
+						<button id="OLmap" ontouchstart="window.location.href='http://openlayers.org/dev/examples/mobile.html'">OpenLayers OSM Map</button>
+						<button id="OLjqm" ontouchstart="window.location.href='http://openlayers.org/dev/examples/mobile-jq.html'">OpenLayers & JQMobile</button>
+						<button id="gmaps" ontouchstart="window.location.href='http://maps.google.de'">Google API Maps</button>
+						<button id="terrestris" ontouchstart="window.location.href='http://ows.terrestris.de/webgis-client/index.html'">Terrestris WebGIS</button>
 <!-- TODO Don't work as expected yet ("jumpy" gestures)		-->
 <!--				<button id="leaflet" ontouchstart="window.location.href='http://leaflet.cloudmade.com/examples/mobile-example.html'">											TODO Doesn't work  -->
 <!--				<button id="hammer" ontouchstart="window.location.href='http://eightmedia.github.com/hammer.js/#touchme'">HammerJS Gesture Test</button>						TODO transform gesture recgnition seems displaced -->
 <!--				<button id="p2fl" ontouchstart="window.location.href='http://my.page2flip.de/page2flip_beispiele/plietsch/mobile.html'">Page2Flip Web-App</button>				TODO Doesn't work  -->
-			</p>
+				</fieldset>
+			</form>
 		</div>
 <!--		<form>
 			<input type="checkbox" id="cbxPfAll" name="cbxPfAll" checked onchange="if (window.WMP) window.WMP.setPolyfillAllTouches(cbxPfAll.checked)" />
