@@ -213,7 +213,7 @@
 //			console.log('raising Touch ' + evt.type + ' (currently ' + evt.touches.length)
 
 			if (!el) {
-				el = win.document.elementFromPoint(e.clientX, e.clientY);			
+				el = win.document.elementFromPoint(e.clientX, e.clientY);
 			}
 
 			if (el)
@@ -233,8 +233,8 @@
 						for (touchId in data[action][i]) {
 							evt = {
 								identifier: parseInt(touchId),
-								clientX: data[action][i][touchId][0],
-								clientY: data[action][i][touchId][1]
+								clientX: data[action][i][touchId][0] / window.devicePixelRatio,
+								clientY: data[action][i][touchId][1] / window.devicePixelRatio
 							};
 							this._fillUpEventData(evt);
 							returnTouches.push( wmp._getTouchFromEvent(evt) );
@@ -248,13 +248,13 @@
 						// it seemed impossible in tests to trigger one event with two fingers simultaneously
 						for (touchId in data[action]) {
 							evt.identifier = parseInt(touchId);
-							evt.clientX = data[action][touchId][0];
-							evt.clientY = data[action][touchId][1];
+							evt.clientX = data[action][touchId][0] / window.devicePixelRatio;
+							evt.clientY = data[action][touchId][1] / window.devicePixelRatio;
 						}
 					} else if (action == 'up' || action == 'cancel') {
 						evt.identifier =  parseInt(data[action]);
-						evt.clientX = currentTouch.clientX;
-						evt.clientY = currentTouch.clientY;
+						evt.clientX = currentTouch.clientX / window.devicePixelRatio;
+						evt.clientY = currentTouch.clientY / window.devicePixelRatio;
 					}
 					this._fillUpEventData(evt);
 					returnTouches.push( wmp._getTouchFromEvent(evt) );
