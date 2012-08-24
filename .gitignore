@@ -16,6 +16,6 @@ gen/
 local.properties
 
 # Local Data
-private/
+!bin/wmp.jar
 !bin/WebView-MultiTouch-Polyfill-debug.apk
-/project.properties
+private/
