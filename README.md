@@ -12,7 +12,11 @@ Compile the project or just start the included apk in the /bin directory.
 The Demo app includes a slightly modified version of the scripty2 Touchspector to visualise your touches,
 as well as links to Online MultiTouch examples.
 
-### Enabling multitouch for own projects
+## Usage
+According to your project configuration, follow the instructions provided below.
+_Important Note_: All code snippets found below need to be involved _before_ *.loadUrl() is used to load the html app into the webview.
+
+## Enabling multitouch for own projects
 1. Import src/com/changeit/wmpolyfill/WebClient.java into your project
 2. In your Main Activity, create a new `WebClient` object and pass it to the `WebView` that you want to enable multitouch on via `setWebViewClient()`:
 
