@@ -48,14 +48,17 @@ public class CordovaWebClient extends CordovaWebViewClient {
 	 */
 	public CordovaWebClient(CordovaInterface cordova, CordovaWebView view) {
 		super(cordova, view);
-		wmp = new WebClient();
-
 
 		DroidGap droidGap = (DroidGap)cordova;
-		if (view == null)
-			view = new CordovaWebView(droidGap);
 
-		droidGap.init( view, this, new CordovaChromeClient(cordova) );
+		if (view == null) {
+// 			android.util.Log.d("polyfill", "CordovaWebClient: Creating View!");
+			view = new CordovaWebView(droidGap);
+			droidGap.init( view, this, new CordovaChromeClient(cordova) );
+		}
+
+		wmp = new WebClient(view);
+		view.setWebViewClient(this);
 	}
 
 
