@@ -8,9 +8,6 @@
 # Java class files
 *.class
 
-# generated files
-bin/
-gen/
 
 # Local configuration file (sdk path, etc)
 local.properties
@@ -19,3 +16,7 @@ local.properties
 !bin/wmp.jar
 !bin/WebView-MultiTouch-Polyfill-debug.apk
 private/
+
+# generated files
+bin/
+gen/
