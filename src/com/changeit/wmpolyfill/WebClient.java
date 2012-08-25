@@ -57,7 +57,7 @@ public class WebClient extends WebViewClient {
 	private WebView view;
 
 	/** Parameters for TouchUpdater */
-	private int updateRate = 1; //Framerate for updates (Default: 60 Frames per second)
+	private int updateRate = 60; //Framerate for updates (Default: 60 Frames per second)
 	private ArrayList<String> updateTouches = new ArrayList<String>(); //holds touches since the last update 
 	private Timer updateTimer = new Timer(); 
 	
@@ -107,19 +107,19 @@ public class WebClient extends WebViewClient {
 		if (Build.VERSION.SDK_INT <= 10) {
 			//this.view = view;
 			injectWMPJs();
-			//updateTimer.schedule(new WebClientTouchUpdater(this, view), 0, (1000/updateRate));
+			updateTimer.schedule(new WebClientTouchUpdater(this, view), 0, (1000/updateRate));
 			view.setOnTouchListener(new View.OnTouchListener() {
 				public boolean onTouch(View arg0, MotionEvent arg1) {
 					WebView view = (WebView) arg0;
 					if (polyfillAllTouches || arg1.getPointerCount() > maxNativeTouches || arg1.getPointerId( arg1.getActionIndex() ) + 1 > maxNativeTouches ) {
-						//updateMoveBuffer(view, arg1);
+						updateMoveBuffer(view, arg1);
 						/* Tracking each and every move would be total javascript runtime overkill,
 						* therefore only changes by at least one pixel will be tracked
 						*/
 						if (moveBuffer.length() > 0 || arg1.getAction() != MotionEvent.ACTION_MOVE) {
 							String EventJSON = getEvent(arg1);
 							//view.loadUrl("javascript: WMP.polyfill(" + EventJSON + ");");
-							//updateTouches.add(EventJSON); // add touches to buffer for TouchUpdater
+							updateTouches.add(EventJSON); // add touches to buffer for TouchUpdater
 //							android.util.Log.d("debug-console", EventJSON);
 						}
 						return true;
