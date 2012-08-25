@@ -107,7 +107,7 @@ public class MainActivity extends Activity
 	private String[] getMultiTouchFeatures() {
 		String[] s = new String[4];
 		if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN))
-			s[0] = "Device has a Touchscreen";
+			s[0] = "Device has aaaa Touchscreen";
 		if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH))
 			s[1] = "Device has a Touchscreen and knows basic gestures for two fingers";
 		if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH_DISTINCT))
