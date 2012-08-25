@@ -42,9 +42,16 @@ public class PhonegapWebClient extends CordovaWebViewClient {
 	 * @param cordova
 	 * @param view
 	 */
-	public PhonegapWebClient(CordovaInterface cordova, CordovaWebView view) {
-		super(cordova, view);
+	public PhonegapWebClient(DroidGap cordova, WebView view) {
+		super(cordova);
+
+		if (view == null) {
+			view = new WebView(cordova);
+			cordova.init();	// Trigger initialisation of WebView and other dependent objects
+		}
+
 		wmp = new WebClient(view);
+		view.setWebViewClient(this);
 	}
 
 	@Override
