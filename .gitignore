@@ -13,8 +13,8 @@
 local.properties
 
 # Local Data
-!bin/wmp.jar
-!bin/WebView-MultiTouch-Polyfill-debug.apk
+!*.jar
+!*.apk
 private/
 
 # generated files
