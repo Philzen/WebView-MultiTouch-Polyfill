@@ -18,32 +18,35 @@ Full source code found [here on github](https://github.com/Philzen/Webview-Multi
 Grab the latest release version from https://github.com/Philzen/WebView-MultiTouch-Polyfill/tags
 
 1. Copy wmp.jar into your own projects' `libs` folder
-2. In your Main Activity, create a new `WebClient` object and pass it to the `WebView` that you want to enable multitouch on via `setWebViewClient()`:
+2. In your Main Activity, create a new `WebClient` object, passing in the `WebView` that you want to enable multitouch on:
 
-        WebClient wmp = new WebClient(webview)
+		WebClient wmp = new WebClient(webview);
 
 ### Enabling Multitouch for Phonegap 1.9+ (Cordova) projects
 
-As above, but instead of `WebClient` use `CordovaWebClient`:
+- As above, but instead of `WebClient` use `CordovaWebClient`:
 
-        CordovaWebClient wmp = new CordovaWebClient(this, appView);
+		CordovaWebClient wmp = new CordovaWebClient(this, appView);
 
-### Enabling Multitouch for legacy (pre-1.9) phonegap projects <small>(tested with 1.8.1)</small>
+### Enabling Multitouch for legacy (pre-1.9) phonegap projects <sub>(tested with 1.8.1)</small>
 
 1. Copy WebClient.java and PhonegapWebClient.java from src/com/changeit/wmpolyfill/ into your project. You will need to refactor those classes namespace to match those of your project - some IDEs (i.e. Netbeans) will do that conveniently for you as you paste the files
 2. In your Main (`DroidGap`) Activity, instantiate a new `PhonegapWebClient`:
 
 		PhonegapWebClient wmp = new PhonegapWebClient(this, appView);
 
-### Options
-* setPolyfillAllTouches (Boolean)
+This solution was tested with Phonegap 1.8.1 and should work with many earlier versions.
 
-	[default: `false`] Per default WMP won't do anything to single hand gestures in order not to interfere with varying event implementations on different devices. If you set this value to `true`, all touches on the webview will be intercepted and emulated in the polyfill.
+### Options
+* setPolyfillAllTouches (Boolean)    [default: `false`]
+    Per default WMP won't do anything to single hand gestures in order not to interfere with varying event implementations on different devices. If you set this value to `true`, all touches on the webview will be intercepted and emulated in the polyfill.
 	NOTE: The polyfill won't interfere with any touches (basically it will be inactive) if the API Level is 11 or higher (= devices running Android 3+)
 
 ### Miscellaneous
-* You may help the project a great deal by adding your device details to the [tested device list](https://github.com/Philzen/WebView-MultiTouch-Polyfill/wiki/Device-Chart)
-* Visit https://github.com/Philzen/WebView-MultiTouch-Polyfill/wiki for further information and ongoing development updates.
+* You can help the project by
+    1. adding your device details to the [tested device list](https://github.com/Philzen/WebView-MultiTouch-Polyfill/wiki/Device-Chart) - if at least the demo app works for your device
+    2. not hesitating to [report any issues](https://github.com/Philzen/WebView-MultiTouch-Polyfill/issues) WMP-specific issues you may encounter on your device and/or app
+* Visit [the wiki] (https://github.com/Philzen/WebView-MultiTouch-Polyfill/wiki) for further information and ongoing development updates.
 
 ### Licence Information
 The author of this repository strongly sympathises with the "Non-Military Use Only" Licence model. However, since it poses a logical contradiction of the open source definition, all rights are hereby granted under the Apache licence:
