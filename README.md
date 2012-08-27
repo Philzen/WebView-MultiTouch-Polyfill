@@ -1,16 +1,22 @@
 # webview-multitouch-polyfill
-A polyfill re-enabling multitouch functionality on Android 2.x HTML 5 apps
----------------------------------------------------------------------------
+
+### Re-enabling multitouch functionality HTML 5 apps on many pre-Android 3 phones
 
 This piece of code is for you, if
 * you want to develop an HTML5 app
 * you'd like to track more than one fingertap action ("touch events")
 * you want it to work on more pre-Android-3-phones
 
+
 ### Demo
-There's a demo app, showcasing the usage and abilities of WMP at https://github.com/Philzen/Webview-MultiTouch-Polyfill-Demo
+Test WMP on your phone by installing WebView-MultiTouch-Polyfill-DemoApp.apk on your device (compiled for Level 10 API = Android 2.3.3+).
+Full source code found [here on github](https://github.com/Philzen/Webview-MultiTouch-Polyfill-Demo).
+
 
 ## Usage
+
+Grab the latest release version from https://github.com/Philzen/WebView-MultiTouch-Polyfill/tags
+
 1. Copy wmp.jar into your own projects' `libs` folder
 2. In your Main Activity, create a new `WebClient` object and pass it to the `WebView` that you want to enable multitouch on via `setWebViewClient()`:
 
