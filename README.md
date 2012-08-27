@@ -1,6 +1,6 @@
-# webview-multitouch-polyfill
+# WebView MultiTouch Polyfill
 
-### Re-enabling multitouch functionality HTML 5 apps on many pre-Android 3 phones
+### ... joyfully re-enabling multitouch functionality for HTML 5 apps on many pre-Android 3 devices
 
 This piece of code is for you, if
 * you want to develop an HTML5 app
