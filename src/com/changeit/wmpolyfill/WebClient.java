@@ -4,10 +4,6 @@
  */
 package com.changeit.wmpolyfill;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.annotation.SuppressLint;
 import android.os.Build;
 import android.util.Log;
 import android.view.MotionEvent;
