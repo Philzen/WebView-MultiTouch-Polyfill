@@ -11,7 +11,7 @@ This piece of code is for you, if
 There's a demo app, showcasing the usage and abilities of WMP at https://github.com/Philzen/Webview-MultiTouch-Polyfill-Demo
 
 ## Usage
-1. Copy bin/wmp.jar into your own projects' `libs` folder
+1. Copy wmp.jar into your own projects' `libs` folder
 2. In your Main Activity, create a new `WebClient` object and pass it to the `WebView` that you want to enable multitouch on via `setWebViewClient()`:
 
         WebClient wmp = new WebClient(webview)
@@ -20,7 +20,7 @@ There's a demo app, showcasing the usage and abilities of WMP at https://github.
 
 As above, but instead of `WebClient` use `CordovaWebClient`:
 
-		CordovaWebClient wmp = new CordovaWebClient(this, appView);
+        CordovaWebClient wmp = new CordovaWebClient(this, appView);
 
 ### Enabling Multitouch for Phonegap <1.9 projects <small>(tested with 1.8.1)</small
 
