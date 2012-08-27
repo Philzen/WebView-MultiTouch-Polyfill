@@ -9,7 +9,7 @@ This piece of code is for you, if
 
 
 ### Demo
-Test WMP on your phone by installing WebView-MultiTouch-Polyfill-DemoApp.apk on your device (compiled for Level 10 API = Android 2.3.3+).
+Test WMP by installing WebView-MultiTouch-Polyfill-DemoApp.apk on your device (compiled for Level 10 API = Android 2.3.3+).
 Full source code found [here on github](https://github.com/Philzen/Webview-MultiTouch-Polyfill-Demo).
 
 
