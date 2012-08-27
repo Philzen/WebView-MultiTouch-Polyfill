@@ -1,5 +1,5 @@
 # WebView MultiTouch Polyfill
-### ... joyfully re-enabling multitouch functionality for HTML 5 apps on many pre-Android 3 devices
+<small> ... joyfully re-enabling multitouch functionality for HTML 5 apps on many pre-Android 3 devices</small>
 
 This piece of code is for you, if
 * you want to develop an HTML5 app
@@ -27,7 +27,7 @@ As above, but instead of `WebClient` use `CordovaWebClient`:
 
         CordovaWebClient wmp = new CordovaWebClient(this, appView);
 
-### Enabling Multitouch for Phonegap <1.9 projects <small>(tested with 1.8.1)</small
+### Enabling Multitouch for Phonegap <1.9 projects <small>(tested with 1.8.1)</small>
 
 1. Copy WebClient.java and PhonegapWebClient.java from src/com/changeit/wmpolyfill/ into your project. You will need to refactor those classes namespace to match those of your project - some IDEs (i.e. Netbeans) will do that conveniently for you as you paste the files
 2. In your Main (`DroidGap`) Activity, instantiate a new `PhonegapWebClient`:
