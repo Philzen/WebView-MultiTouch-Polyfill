@@ -22,6 +22,8 @@ Grab the latest release version from https://github.com/Philzen/WebView-MultiTou
 
 		WebClient wmp = new WebClient(webview);
 
+Refer to the [MainActivity](https://github.com/Philzen/Webview-MultiTouch-Polyfill-Demo/blob/master/src/com/changeit/wmpdemo/MainActivity.java) of the demo app to see the command in context.
+
 ### Enabling Multitouch for Phonegap 1.9+ (Cordova) projects
 
 - As above, but instead of `WebClient` use `CordovaWebClient`:
