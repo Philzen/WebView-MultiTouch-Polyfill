@@ -61,7 +61,7 @@ import android.webkit.WebViewClient;
 	private WebView view;
 
 	/** Parameters for TouchUpdater */
-	private boolean enableTimerClass = true; // true = use TimerClass to queue and send events, false = send events directly
+	private boolean enableTimerClass = false; // true = use TimerClass to queue and send events, false = send events directly
 	private int updateRate = 60; //Framerate for updates (Default: 60 Frames per second) play with it to see the difference ( =1 =5 etc.)
 	private ArrayList<String> updateTouches = new ArrayList<String>(); //holds touches since the last update 
 	private Timer updateTimer = new Timer(); 
