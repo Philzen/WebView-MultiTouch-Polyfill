@@ -4,6 +4,7 @@
  */
 package com.changeit.wmpolyfill;
 
+<<<<<<< HEAD
 import org.json.JSONObject;
 import org.json.JSONException;
 
@@ -11,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Timer;
 
 import android.annotation.SuppressLint;
+=======
+>>>>>>> refs/heads/master
 import android.os.Build;
 import android.util.Log;
 import android.view.MotionEvent;
