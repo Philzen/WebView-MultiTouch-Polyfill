@@ -4,6 +4,10 @@
  */
 package com.changeit.wmpolyfill;
 
+
+import java.util.ArrayList;
+import java.util.Timer;
+
 import android.os.Build;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -50,6 +54,14 @@ public class WebClient extends WebViewClient {
 	/** Maintains a reference to the webview object for coding convenience reasons */
 	private WebView view;
 
+	/** Parameters for TouchUpdater */
+	private boolean enableTimerClass = false; // true = use TimerClass to queue and send events, false = send events directly
+	private int updateRate = 60; //Framerate for updates (Default: 60 Frames per second) play with it to see the difference ( =1 =5 etc.)
+	private ArrayList<String> updateTouches = new ArrayList<String>(); //holds touches since the last update 
+	private Timer updateTimer = new Timer(); 
+	/** Reduce move events (higher value = less moveevents but jumpy */
+	private int pixelTolerance = 5; //0 = no tolerance
+	
 	/**
 	 * Constructor
 	 * Enables Javascript2Java an vice versa.
@@ -87,10 +99,14 @@ public class WebClient extends WebViewClient {
 	@Override
 	public void onPageFinished(WebView view, String url)
 	{
-//		android.util.Log.v("console", "pagefinished_" + url);
+		//android.util.Log.v("console", "pagefinished_" + url);
 		if (Build.VERSION.SDK_INT <= 10) {
 			//this.view = view;
 			injectWMPJs();
+			if (enableTimerClass){
+				updateTimer.schedule(new WebClientTouchUpdater(this, view), 0, (1000/updateRate));
+				android.util.Log.d("debug-console", "TimerClass enabled");
+			}
 			view.setOnTouchListener(new View.OnTouchListener() {
 				public boolean onTouch(View arg0, MotionEvent arg1) {
 					WebView view = (WebView) arg0;
@@ -101,13 +117,18 @@ public class WebClient extends WebViewClient {
 						*/
 						if (moveBuffer.length() > 0 || arg1.getAction() != MotionEvent.ACTION_MOVE) {
 							String EventJSON = getEvent(arg1);
-							view.loadUrl("javascript: WMP.polyfill(" + EventJSON + ");");
-
-//							android.util.Log.d("debug-console", EventJSON);
+							if (enableTimerClass){
+								// add touches to buffer for TouchUpdater
+								updateTouches.add(EventJSON); 
+								
+							}else{
+								//send Touches directly
+								view.loadUrl("javascript: WMP.polyfill(" + EventJSON + ");");
+							}
+							android.util.Log.d("debug-console", EventJSON);
 						}
 						return true;
 					}
-
 					/**
 					* FALSE : let other handlers do their work (good if we want to test for already working touchevents)
 					* TRUE : stop propagating / bubbling event to other handlers (good if we don't want selection or zoom handlers to happen in webview)
@@ -117,7 +138,27 @@ public class WebClient extends WebViewClient {
 			});
 		}
 	}
-
+	/**
+	 * Returns the collected touches and clears the TouchBuffer
+	 * (needed for TouchUpdater)
+	 * @author fastrde
+	 * @return
+	 */
+	public ArrayList<String> getTouches(){
+		ArrayList<String> tmpTouches = updateTouches;
+		updateTouches = new ArrayList<String>();
+		return tmpTouches;
+	}
+	/**
+	 * set the updateRate for the TouchUpdater
+	 * @author fastrde
+	 * @param rate UpdateRate in updates per second
+	 */
+	public void setUpdateRate(int rate){
+		if (rate > 0 && rate < 160){ //check for bounding TODO: proper bounding?
+			this.updateRate = rate;
+		}
+	}
 	/**
 	 * Update this.moveBuffer with any new touches of concern
 	 *
@@ -135,12 +176,13 @@ public class WebClient extends WebViewClient {
 
 			for (int i = 0; i < event.getPointerCount(); i++)
 			{
-				if ( (int)lastMotionEvent.getX(i) == (int)event.getX(i)
-					&& (int)lastMotionEvent.getY(i) == (int)event.getY(i)
-					// Ignore Events outside of viewport
-					|| (int)event.getX(i) > view.getWidth()
-					|| (int)event.getY(i) > view.getHeight())
-					continue;
+				if ( 
+						Math.abs((int)lastMotionEvent.getX(i)-(int)event.getX(i)) <= pixelTolerance
+						&& Math.abs((int)lastMotionEvent.getY(i)-(int)event.getY(i)) <= pixelTolerance
+						// Ignore Events outside of viewport
+						|| (int)event.getX(i) > view.getWidth()
+						|| (int)event.getY(i) > view.getHeight())
+						continue;
 
 				addMoveToBuffer(event, i);
 			}
