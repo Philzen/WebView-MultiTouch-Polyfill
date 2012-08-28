@@ -4,7 +4,7 @@
  */
 package com.changeit.wmpolyfill;
 
-<<<<<<< HEAD
+
 import org.json.JSONObject;
 import org.json.JSONException;
 
@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.Timer;
 
 import android.annotation.SuppressLint;
-=======
->>>>>>> refs/heads/master
+import android.annotation.TargetApi;
+
 import android.os.Build;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -28,7 +28,7 @@ import android.webkit.WebViewClient;
  * @author philzen
  */
 
-public class WebClient extends WebViewClient {
+@TargetApi(8) public class WebClient extends WebViewClient {
 
 	public static final String VERSION = "0.3";
 
@@ -61,10 +61,10 @@ public class WebClient extends WebViewClient {
 	private WebView view;
 
 	/** Parameters for TouchUpdater */
-	private int updateRate = 60; //Framerate for updates (Default: 60 Frames per second)
+	private boolean enableTimerClass = true; // true = use TimerClass to queue and send events, false = send events directly
+	private int updateRate = 60; //Framerate for updates (Default: 60 Frames per second) play with it to see the difference ( =1 =5 etc.)
 	private ArrayList<String> updateTouches = new ArrayList<String>(); //holds touches since the last update 
 	private Timer updateTimer = new Timer(); 
-	
 	/** Reduce move events (higher value = less moveevents but jumpy */
 	private int pixelTolerance = 5; //0 = no tolerance
 	
@@ -74,7 +74,7 @@ public class WebClient extends WebViewClient {
 	 * Provides a javascript Object "wmpjs".
 	 * @param view
 	 */
-	@SuppressLint("SetJavaScriptEnabled")
+	@TargetApi(4) @SuppressLint("SetJavaScriptEnabled")
 	public WebClient(WebView view){
 		super();
 		if (Build.VERSION.SDK_INT <= 10) {
@@ -111,7 +111,10 @@ public class WebClient extends WebViewClient {
 		if (Build.VERSION.SDK_INT <= 10) {
 			//this.view = view;
 			injectWMPJs();
-			updateTimer.schedule(new WebClientTouchUpdater(this, view), 0, (1000/updateRate));
+			if (enableTimerClass){
+				updateTimer.schedule(new WebClientTouchUpdater(this, view), 0, (1000/updateRate));
+				android.util.Log.d("debug-console", "TimerClass enabled");
+			}
 			view.setOnTouchListener(new View.OnTouchListener() {
 				public boolean onTouch(View arg0, MotionEvent arg1) {
 					WebView view = (WebView) arg0;
@@ -122,9 +125,15 @@ public class WebClient extends WebViewClient {
 						*/
 						if (moveBuffer.length() > 0 || arg1.getAction() != MotionEvent.ACTION_MOVE) {
 							String EventJSON = getEvent(arg1);
-							//view.loadUrl("javascript: WMP.polyfill(" + EventJSON + ");");
-							updateTouches.add(EventJSON); // add touches to buffer for TouchUpdater
-//							android.util.Log.d("debug-console", EventJSON);
+							if (enableTimerClass){
+								// add touches to buffer for TouchUpdater
+								updateTouches.add(EventJSON); 
+								
+							}else{
+								//send Touches directly
+								view.loadUrl("javascript: WMP.polyfill(" + EventJSON + ");");
+							}
+							android.util.Log.d("debug-console", EventJSON);
 						}
 						return true;
 					}
@@ -141,7 +150,7 @@ public class WebClient extends WebViewClient {
 	/**
 	 * Returns the collected touches and clears the TouchBuffer
 	 * (needed for TouchUpdater)
-	 * @author fastr
+	 * @author fastrde
 	 * @return
 	 */
 	public ArrayList<String> getTouches(){
@@ -151,7 +160,7 @@ public class WebClient extends WebViewClient {
 	}
 	/**
 	 * set the updateRate for the TouchUpdater
-	 * @author fastr
+	 * @author fastrde
 	 * @param rate UpdateRate in updates per second
 	 */
 	public void setUpdateRate(int rate){
