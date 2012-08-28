@@ -196,6 +196,27 @@ import android.webkit.WebViewClient;
 		}
 	}
 	/**
+	 * Returns the collected touches and clears the TouchBuffer
+	 * (needed for TouchUpdater)
+	 * @author fastrde
+	 * @return
+	 */
+	public ArrayList<String> getTouches(){
+		ArrayList<String> tmpTouches = updateTouches;
+		updateTouches = new ArrayList<String>();
+		return tmpTouches;
+	}
+	/**
+	 * set the updateRate for the TouchUpdater
+	 * @author fastrde
+	 * @param rate UpdateRate in updates per second
+	 */
+	public void setUpdateRate(int rate){
+		if (rate > 0 && rate < 160){ //check for bounding TODO: proper bounding?
+			this.updateRate = rate;
+		}
+	}
+	/**
 	 * Update this.moveBuffer with any new touches of concern
 	 *
 	 * @return whether a new action has been added to the moveBuffer
