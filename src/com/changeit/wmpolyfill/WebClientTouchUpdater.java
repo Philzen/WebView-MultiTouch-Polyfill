@@ -1,4 +1,3 @@
-
 package com.changeit.wmpolyfill;
 
 import java.util.ArrayList;
@@ -9,7 +8,7 @@ import android.webkit.WebView;
 
 /**
  * Class implements a TimerTask that sends the touches collected by WebClient to the WebApp
- * @author fastr
+ * @author fastrde
  *
  */
 public class WebClientTouchUpdater extends TimerTask{
