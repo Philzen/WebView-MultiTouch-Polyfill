@@ -5,14 +5,8 @@
 package com.changeit.wmpolyfill;
 
 
-import org.json.JSONObject;
-import org.json.JSONException;
-
 import java.util.ArrayList;
 import java.util.Timer;
-
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 
 import android.os.Build;
 import android.util.Log;
@@ -28,7 +22,7 @@ import android.webkit.WebViewClient;
  * @author philzen
  */
 
-@TargetApi(8) public class WebClient extends WebViewClient {
+public class WebClient extends WebViewClient {
 
 	public static final String VERSION = "0.3";
 
@@ -74,7 +68,6 @@ import android.webkit.WebViewClient;
 	 * Provides a javascript Object "wmpjs".
 	 * @param view
 	 */
-	@TargetApi(4) @SuppressLint("SetJavaScriptEnabled")
 	public WebClient(WebView view){
 		super();
 		if (Build.VERSION.SDK_INT <= 10) {
@@ -86,14 +79,6 @@ import android.webkit.WebViewClient;
 		moveBuffer = new StringBuilder();
 	}
 
-	/** Parameters for TouchUpdater */
-	private int updateRate = 60; //Framerate for updates (Default: 60 Frames per second)
-	private ArrayList<String> updateTouches = new ArrayList<String>(); //holds touches since the last update 
-	private Timer updateTimer = new Timer(); 
-	
-	/** Reduce move events (higher value = less moveevents but jumpy */
-	private int pixelTolerance = 5; //0 = no tolerance
-	
 	@Override
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
 //		android.util.Log.v("console", "OVERRIDEURLLOADING to " + url);
@@ -114,7 +99,7 @@ import android.webkit.WebViewClient;
 	@Override
 	public void onPageFinished(WebView view, String url)
 	{
-		android.util.Log.v("console", "pagefinished_" + url);
+		//android.util.Log.v("console", "pagefinished_" + url);
 		if (Build.VERSION.SDK_INT <= 10) {
 			//this.view = view;
 			injectWMPJs();
@@ -175,48 +160,6 @@ import android.webkit.WebViewClient;
 		}
 	}
 	/**
-	 * Returns the collected touches and clears the TouchBuffer
-	 * (needed for TouchUpdater)
-	 * @author fastr
-	 * @return
-	 */
-	public ArrayList<String> getTouches(){
-		ArrayList<String> tmpTouches = updateTouches;
-		updateTouches = new ArrayList<String>();
-		return tmpTouches;
-	}
-	/**
-	 * set the updateRate for the TouchUpdater
-	 * @author fastr
-	 * @param rate UpdateRate in updates per second
-	 */
-	public void setUpdateRate(int rate){
-		if (rate > 0 && rate < 160){ //check for bounding TODO: proper bounding?
-			this.updateRate = rate;
-		}
-	}
-	/**
-	 * Returns the collected touches and clears the TouchBuffer
-	 * (needed for TouchUpdater)
-	 * @author fastrde
-	 * @return
-	 */
-	public ArrayList<String> getTouches(){
-		ArrayList<String> tmpTouches = updateTouches;
-		updateTouches = new ArrayList<String>();
-		return tmpTouches;
-	}
-	/**
-	 * set the updateRate for the TouchUpdater
-	 * @author fastrde
-	 * @param rate UpdateRate in updates per second
-	 */
-	public void setUpdateRate(int rate){
-		if (rate > 0 && rate < 160){ //check for bounding TODO: proper bounding?
-			this.updateRate = rate;
-		}
-	}
-	/**
 	 * Update this.moveBuffer with any new touches of concern
 	 *
 	 * @return whether a new action has been added to the moveBuffer
@@ -233,13 +176,6 @@ import android.webkit.WebViewClient;
 
 			for (int i = 0; i < event.getPointerCount(); i++)
 			{
-				/*if ( (int)lastMotionEvent.getX(i) == (int)event.getX(i)
-					&& (int)lastMotionEvent.getY(i) == (int)event.getY(i)
-					// Ignore Events outside of viewport
-					|| (int)event.getX(i) > view.getWidth()
-					|| (int)event.getY(i) > view.getHeight())
-					continue;
-*/
 				if ( 
 						Math.abs((int)lastMotionEvent.getX(i)-(int)event.getX(i)) <= pixelTolerance
 						&& Math.abs((int)lastMotionEvent.getY(i)-(int)event.getY(i)) <= pixelTolerance
