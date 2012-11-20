@@ -18,7 +18,8 @@ import android.webkit.WebViewClient;
  *
  * @author philzen
  */
-public class WebClient extends WebViewClient {
+public class WebClient extends WebViewClient
+{
 
     public static final String VERSION = "0.3";
     /**
@@ -65,7 +66,8 @@ public class WebClient extends WebViewClient {
      *
      * @param view
      */
-    public WebClient(WebView view) {
+    public WebClient(WebView view)
+    {
 	super();
 	if (Build.VERSION.SDK_INT <= 10) {
 	    this.view = view;
@@ -77,28 +79,33 @@ public class WebClient extends WebViewClient {
     }
 
     @Override
-    public boolean shouldOverrideUrlLoading(WebView view, String url) {
+    public boolean shouldOverrideUrlLoading(WebView view, String url)
+    {
 //	android.util.Log.v("console", "OVERRIDEURLLOADING to " + url);
 	view.loadUrl(url);
 	return true;
     }
 
     @Override
-    public void onPageStarted(WebView view, String url, Bitmap favicon) {
-	view.setOnTouchListener(null);
-	isJsInjected = false;
-	currentUrl = view.getUrl();
-	super.onPageStarted(view, url, favicon); //To change body of generated methods, choose Tools | Templates.
+    public void onPageStarted(WebView view, String url, Bitmap favicon)
+    {
+	view.setOnTouchListener(null);	// Stop listening to touches when loading a new page,
+	isJsInjected = false;		// as injected functions are not available during load
+	currentUrl = url;
+	super.onPageStarted(view, url, favicon);
     }
 
     @Override
-    public void onPageFinished(WebView view, String url) {
+    public void onPageFinished(WebView view, String url)
+    {
 //	android.util.Log.v("console", "pagefinished_" + url);
 	if (Build.VERSION.SDK_INT <= 10) {
 	    //this.view = view;
 	    injectWMPJs();
-	    view.setOnTouchListener(new View.OnTouchListener() {
-		public boolean onTouch(View arg0, MotionEvent arg1) {
+	    view.setOnTouchListener(new View.OnTouchListener()
+	    {
+		public boolean onTouch(View arg0, MotionEvent arg1)
+		{
 		    WebView view = (WebView) arg0;
 		    if (polyfillAllTouches || arg1.getPointerCount() > maxNativeTouches || arg1.getPointerId(arg1.getActionIndex()) + 1 > maxNativeTouches) {
 			updateMoveBuffer(view, arg1);
@@ -130,7 +137,8 @@ public class WebClient extends WebViewClient {
      *
      * @return whether a new action has been added to the moveBuffer
      */
-    private boolean updateMoveBuffer(WebView view, MotionEvent event) {
+    private boolean updateMoveBuffer(WebView view, MotionEvent event)
+    {
 	int actionCode = event.getAction() & MotionEvent.ACTION_MASK;
 	if (actionCode == MotionEvent.ACTION_MOVE) {
 	    moveBuffer.setLength(0);
@@ -169,7 +177,8 @@ public class WebClient extends WebViewClient {
      * @param event A motion Event
      * @param pointerIndex The index of the pointer in the collection that we want to extract
      */
-    private void addMoveToBuffer(MotionEvent event, int pointerIndex) {
+    private void addMoveToBuffer(MotionEvent event, int pointerIndex)
+    {
 
 	if (moveBuffer.length() > 0) {
 	    moveBuffer.append(",");
@@ -190,14 +199,16 @@ public class WebClient extends WebViewClient {
      *
      * @param event A motion Event
      */
-    private void addAllMovesToBuffer(MotionEvent event) {
+    private void addAllMovesToBuffer(MotionEvent event)
+    {
 
 	for (int i = 0; i < event.getPointerCount(); i++) {
 	    addMoveToBuffer(event, i);
 	}
     }
 
-    private String getEvent(MotionEvent event) {
+    private String getEvent(MotionEvent event)
+    {
 
 	StringBuilder sb = new StringBuilder();
 	int action = event.getAction();
@@ -218,7 +229,8 @@ public class WebClient extends WebViewClient {
 	return sb.toString();
     }
 
-    public boolean getPolyfillAllTouches() {
+    public boolean getPolyfillAllTouches()
+    {
 	return polyfillAllTouches;
     }
 
@@ -226,7 +238,8 @@ public class WebClient extends WebViewClient {
      * @param polyfillAllTouches If set to TRUE, all touch events will be stopped and replaced by polyfills
      * @return WebClient (Fluent Interface)
      */
-    public WebClient setPolyfillAllTouches(boolean polyfillAllTouches) {
+    public WebClient setPolyfillAllTouches(boolean polyfillAllTouches)
+    {
 	Log.d("wmp.console", "Setting polyfill");
 	this.polyfillAllTouches = polyfillAllTouches;
 	if (isJsInjected) {
@@ -235,7 +248,8 @@ public class WebClient extends WebViewClient {
 	return this;
     }
 
-    private void injectWMPJs() {
+    private void injectWMPJs()
+    {
 	StringBuilder wmpJs = new StringBuilder();
 	wmpJs.append("javascript: if (!window.WMP || WMP.Version != '")
 		.append(WebClient.VERSION)
@@ -248,7 +262,8 @@ public class WebClient extends WebViewClient {
 	isJsInjected = true;
     }
 
-    private String getCurrentSettingsInjectionJs() {
+    private String getCurrentSettingsInjectionJs()
+    {
 
 	if (polyfillAllTouches != true || isJsInjected) // only needed if not true (default) or if setting was changed after initialisation
 	{
@@ -270,50 +285,58 @@ public class WebClient extends WebViewClient {
      * @author fastr
      *
      */
-    class jsInterface {
+    class jsInterface
+    {
 
 	/**
 	 * Version *
 	 */
-	public String getVersion() {
+	public String getVersion()
+	{
 	    return WebClient.VERSION;
 	}
 
 	/**
 	 * PolyfillAllTouches *
 	 */
-	public void setPolyfillAllTouches(boolean value) {
+	public void setPolyfillAllTouches(boolean value)
+	{
 	    WebClient.this.setPolyfillAllTouches(value);
 	}
 
-	public boolean getPolyfillAllTouches() {
+	public boolean getPolyfillAllTouches()
+	{
 	    return WebClient.this.getPolyfillAllTouches();
 	}
 
 	/**
 	 * PolyfillAllTouches *
 	 */
-	public void setMaxNativeTouches(int value) {
+	public void setMaxNativeTouches(int value)
+	{
 	    if (value > 0) {
 		WebClient.this.maxNativeTouches = value;
 	    }
 	}
 
-	public int getMaxNativeTouches() {
+	public int getMaxNativeTouches()
+	{
 	    return WebClient.this.maxNativeTouches;
 	}
 
 	/**
 	 * isJsInjected *
 	 */
-	public boolean isJsInjected() {
+	public boolean isJsInjected()
+	{
 	    return WebClient.this.isJsInjected;
 	}
 
 	/**
 	 * return JSON String of the current configuration. You have to JSON.parse it on javascript-side
 	 */
-	public String getConfig() {
+	public String getConfig()
+	{
 	    String str =
 		    "{"
 		    + "\"VERSION\":" + "\"" + WebClient.VERSION + "\"" + ","
