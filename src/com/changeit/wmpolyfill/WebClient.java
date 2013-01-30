@@ -33,8 +33,8 @@ public class WebClient extends WebViewClient {
 	/** @see setPolyFillAllTouches() */
 	protected Boolean polyfillAllTouches = false;
 
-	/** obsolete? */
-	//protected int moveThreshold = 1;
+	/** Reduce move events (higher value = less moveevents but jumpy */
+	protected int moveThreshold = 1;
 
 	/** The number of touches already working out-of-the-box (we'll assume at least one for all devices) */
 	protected int maxNativeTouches = 1;
@@ -59,8 +59,6 @@ public class WebClient extends WebViewClient {
 	private int updateRate = 60; //Framerate for updates (Default: 60 Frames per second) play with it to see the difference ( =1 =5 etc.)
 	private ArrayList<String> updateTouches = new ArrayList<String>(); //holds touches since the last update 
 	private Timer updateTimer = new Timer(); 
-	/** Reduce move events (higher value = less moveevents but jumpy */
-	private int pixelTolerance = 5; //0 = no tolerance
 	
 	/**
 	 * Constructor
@@ -177,8 +175,8 @@ public class WebClient extends WebViewClient {
 			for (int i = 0; i < event.getPointerCount(); i++)
 			{
 				if ( 
-						Math.abs((int)lastMotionEvent.getX(i)-(int)event.getX(i)) <= pixelTolerance
-						&& Math.abs((int)lastMotionEvent.getY(i)-(int)event.getY(i)) <= pixelTolerance
+						Math.abs((int)lastMotionEvent.getX(i)-(int)event.getX(i)) <= moveThreshold
+						&& Math.abs((int)lastMotionEvent.getY(i)-(int)event.getY(i)) <= moveThreshold
 						// Ignore Events outside of viewport
 						|| (int)event.getX(i) > view.getWidth()
 						|| (int)event.getY(i) > view.getHeight())
