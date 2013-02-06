@@ -54,7 +54,7 @@ public class WebClient extends WebViewClient
      */
     private boolean isJsInjected = false;
     /**
-     * A String to store only the current changed event info  *
+     * A String to store only the current changed event info *
      */
     private StringBuilder moveBuffer;
     /**
@@ -117,38 +117,7 @@ public class WebClient extends WebViewClient
 		updateTimer.schedule(new WebClientTouchUpdater(this, view), 0, (1000 / updateRate));
 		android.util.Log.d("debug-console", "TimerClass enabled");
 	    }
-	    view.setOnTouchListener(new View.OnTouchListener()
-	    {
-		public boolean onTouch(View arg0, MotionEvent arg1)
-		{
-		    WebView view = (WebView) arg0;
-		    if (polyfillAllTouches || arg1.getPointerCount() > maxNativeTouches || arg1.getPointerId(arg1.getActionIndex()) + 1 > maxNativeTouches) {
-			updateMoveBuffer(view, arg1);
-			/* Tracking each and every move would be total javascript runtime overkill,
-			 * therefore only changes by at least one pixel will be tracked
-			 */
-			if (moveBuffer.length() > 0 || arg1.getAction() != MotionEvent.ACTION_MOVE) {
-			    String EventJSON = getEvent(arg1);
-			    if (enableTimerClass) {
-				// add touches to buffer for TouchUpdater
-				updateTouches.add(EventJSON);
-
-			    } else {
-				//send Touches directly
-				view.loadUrl("javascript: WMP.polyfill(" + EventJSON + ");");
-			    }
-			    android.util.Log.d("debug-console", EventJSON);
-			}
-			return true;
-		    }
-		    /**
-		     * FALSE : let other handlers do their work (good if we want to test for already working
-		     * touchevents) TRUE : stop propagating / bubbling event to other handlers (good if we don't want
-		     * selection or zoom handlers to happen in webview)
-		     */
-		    return false;
-		}
-	    });
+	    setViewTouchListener();
 	}
     }
 
@@ -294,6 +263,29 @@ public class WebClient extends WebViewClient
 	return this;
     }
 
+    public WebClient setEnabled(boolean enable)
+    {
+	if (enable) {
+	    view.setWebViewClient(this);
+	    setViewTouchListener();
+	} else {
+	    view.setWebViewClient(null);
+	    view.setOnTouchListener(null);
+	}
+	return this;
+    }
+    
+    /**
+     *
+     * @throws Throwable
+     */
+    @Override
+    protected void finalize() throws Throwable
+    {
+	setEnabled(false);
+	super.finalize();
+    }
+
     private void injectWMPJs()
     {
 	StringBuilder wmpJs = new StringBuilder();
@@ -308,9 +300,45 @@ public class WebClient extends WebViewClient
 	isJsInjected = true;
     }
 
+    private void setViewTouchListener()
+    {
+	view.setOnTouchListener(new View.OnTouchListener()
+	{
+	    public boolean onTouch(View arg0, MotionEvent arg1)
+	    {
+		WebView view = (WebView) arg0;
+//		    android.util.Log.d("console", arg1.toString());
+		if (polyfillAllTouches || arg1.getPointerCount() > maxNativeTouches || arg1.getPointerId(arg1.getActionIndex()) + 1 > maxNativeTouches) {
+		    updateMoveBuffer(view, arg1);
+		    /* Tracking each and every move would be total javascript runtime overkill,
+		     * therefore only changes by at least one pixel will be tracked
+		     */
+		    if (moveBuffer.length() > 0 || arg1.getAction() != MotionEvent.ACTION_MOVE) {
+			String EventJSON = getEvent(arg1);
+			if (enableTimerClass) {
+			    // add touches to buffer for TouchUpdater
+			    updateTouches.add(EventJSON);
+
+			} else {
+			    //send Touches directly
+			    view.loadUrl("javascript: WMP.polyfill(" + EventJSON + ");");
+			}
+			android.util.Log.d("debug-console", EventJSON);
+		    }
+		    return true;
+		}
+		/**
+		 * FALSE : let other handlers do their work (good if we want to test for already working touchevents)
+		 * TRUE : stop propagating / bubbling event to other handlers (good if we don't want selection or zoom
+		 * handlers to happen in webview)
+		 */
+		return false;
+	    }
+	});
+    }
+
     private String getCurrentSettingsInjectionJs()
     {
-
 	if (polyfillAllTouches != true || isJsInjected) // only needed if not true (default) or if setting was changed after initialisation
 	{
 	    StringBuilder wmpJs = new StringBuilder();
