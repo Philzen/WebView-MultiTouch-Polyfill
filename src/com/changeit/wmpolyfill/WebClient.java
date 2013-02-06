@@ -1,5 +1,6 @@
 package com.changeit.wmpolyfill;
 
+import android.graphics.Bitmap;
 import java.util.ArrayList;
 import java.util.Timer;
 
@@ -50,30 +51,46 @@ public class WebClient extends WebViewClient
      * A copy of the last Motion Event
      */
     private MotionEvent lastMotionEvent = null;
+    
     /**
      * True after injectWMPJs() was called
      */
     private boolean isJsInjected = false;
+    
     /**
      * A String to store only the current changed event info *
      */
     private StringBuilder moveBuffer;
+    
     /**
      * Maintains a reference to the webview object for coding convenience reasons
      */
     private WebView view;
+    
     /**
-     * Parameters for TouchUpdater
+     * true = use TimerClass to queue and send events, false = send events immediately
      */
-    private boolean enableTimerClass = false; // true = use TimerClass to queue and send events, false = send events directly
-    private int updateRate = 60; //Framerate for updates (Default: 60 Frames per second) play with it to see the difference ( =1 =5 etc.)
-    private ArrayList<String> updateTouches = new ArrayList<String>(); //holds touches since the last update 
-    private Timer updateTimer = new Timer();
+    private boolean timerClassEnabled = false; // 
+    
+    /**
+     * Framerate for updates (Default: 60 Frames per second) play with it to see the difference ( =1 =5 etc.)
+     */
+    private int timerClassFramerate = 60;
+    
+    /**
+     * Holds touches since the last update 
+     */
+    private ArrayList<String> timerClassTouchesQueue = new ArrayList<String>(); 
+    
+    /**
+     * The Timer Class to enable controlling of framerate
+     */
+    private Timer TimerClass = new Timer();
 
     /**
-     * Constructor Enables Javascript2Java an vice versa. Provides a javascript Object "wmpjs".
+     * Polyfill WebClient - registers itself directly on the WebView
      *
-     * @param view
+     * @param view A WebView that you want to enable multitouch on
      */
     public WebClient(WebView view)
     {
@@ -83,8 +100,8 @@ public class WebClient extends WebViewClient
 	    this.view.getSettings().setJavaScriptEnabled(true);
 	    this.view.addJavascriptInterface(this.new jsInterface(), "wmpjs");
 	    this.view.setWebViewClient(this);
+	    moveBuffer = new StringBuilder();
 	}
-	moveBuffer = new StringBuilder();
     }
 
     @Override
@@ -96,25 +113,22 @@ public class WebClient extends WebViewClient
     }
 
     @Override
-    public void onLoadResource(WebView view, String url)
+    public void onPageStarted(WebView view, String url, Bitmap favicon)
     {
-//	android.util.Log.v("console", "loadresource_" + url);
-	if (url.indexOf(".html") > 0) // Stop listening to touches when loading a new page,
-	{
-	    view.setOnTouchListener(null);	// as injected functions are not available during load
-	}
-	isJsInjected = false;
+//	android.util.Log.v("console", "onpagestarted_" + url);
+	isJsInjected = false;	// as injected functions are not available during load
+	super.onPageStarted(view, url, favicon);
     }
-
+    
     @Override
     public void onPageFinished(WebView view, String url)
     {
-	//android.util.Log.v("console", "pagefinished_" + url);
+//	android.util.Log.v("console", "pagefinished_" + url);
 	if (validAndroidVersion) {
 	    //this.view = view;
 	    injectWMPJs();
-	    if (enableTimerClass) {
-		updateTimer.schedule(new WebClientTouchUpdater(this, view), 0, (1000 / updateRate));
+	    if (timerClassEnabled) {
+		TimerClass.schedule(new WebClientTouchUpdater(this, view), 0, (1000 / timerClassFramerate));
 		android.util.Log.d("debug-console", "TimerClass enabled");
 	    }
 	    setViewTouchListener();
@@ -129,8 +143,8 @@ public class WebClient extends WebViewClient
      */
     public ArrayList<String> getTouches()
     {
-	ArrayList<String> tmpTouches = updateTouches;
-	updateTouches = new ArrayList<String>();
+	ArrayList<String> tmpTouches = timerClassTouchesQueue;
+	timerClassTouchesQueue = new ArrayList<String>();
 	return tmpTouches;
     }
 
@@ -143,7 +157,7 @@ public class WebClient extends WebViewClient
     public void setUpdateRate(int rate)
     {
 	if (rate > 0 && rate < 160) { //check for bounding TODO: proper bounding?
-	    this.updateRate = rate;
+	    this.timerClassFramerate = rate;
 	}
     }
 
@@ -194,7 +208,6 @@ public class WebClient extends WebViewClient
      */
     private void addMoveToBuffer(MotionEvent event, int pointerIndex)
     {
-
 	if (moveBuffer.length() > 0) {
 	    moveBuffer.append(",");
 	}
@@ -216,7 +229,6 @@ public class WebClient extends WebViewClient
      */
     private void addAllMovesToBuffer(MotionEvent event)
     {
-
 	for (int i = 0; i < event.getPointerCount(); i++) {
 	    addMoveToBuffer(event, i);
 	}
@@ -255,7 +267,7 @@ public class WebClient extends WebViewClient
      */
     public WebClient setPolyfillAllTouches(boolean polyfillAllTouches)
     {
-	Log.d("wmp.console", "Setting polyfill");
+//	Log.d("wmp.console", "Setting polyfill");
 	this.polyfillAllTouches = polyfillAllTouches;
 	if (isJsInjected) {
 	    this.view.loadUrl("javascript:" + getCurrentSettingsInjectionJs());
@@ -296,7 +308,7 @@ public class WebClient extends WebViewClient
 		.append(getCurrentSettingsInjectionJs());
 
 	view.loadUrl(wmpJs.toString());
-//		android.util.Log.v("console", "injecting: WMP-Script (plus: '" + getCurrentSettingsInjectionJs() + "')");
+//	android.util.Log.v("console", "injecting: WMP-Script (plus: '" + getCurrentSettingsInjectionJs() + "')");
 	isJsInjected = true;
     }
 
@@ -306,8 +318,7 @@ public class WebClient extends WebViewClient
 	{
 	    public boolean onTouch(View arg0, MotionEvent arg1)
 	    {
-		WebView view = (WebView) arg0;
-//		    android.util.Log.d("console", arg1.toString());
+//		android.util.Log.d("console", arg1.toString());
 		if (polyfillAllTouches || arg1.getPointerCount() > maxNativeTouches || arg1.getPointerId(arg1.getActionIndex()) + 1 > maxNativeTouches) {
 		    updateMoveBuffer(view, arg1);
 		    /* Tracking each and every move would be total javascript runtime overkill,
@@ -315,15 +326,15 @@ public class WebClient extends WebViewClient
 		     */
 		    if (moveBuffer.length() > 0 || arg1.getAction() != MotionEvent.ACTION_MOVE) {
 			String EventJSON = getEvent(arg1);
-			if (enableTimerClass) {
+			if (timerClassEnabled) {
 			    // add touches to buffer for TouchUpdater
-			    updateTouches.add(EventJSON);
+			    timerClassTouchesQueue.add(EventJSON);
 
 			} else {
 			    //send Touches directly
 			    view.loadUrl("javascript: WMP.polyfill(" + EventJSON + ");");
 			}
-			android.util.Log.d("debug-console", EventJSON);
+//			android.util.Log.d("debug-console", EventJSON);
 		    }
 		    return true;
 		}
