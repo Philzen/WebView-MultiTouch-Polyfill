@@ -1,7 +1,7 @@
 
 package org.changeit.android2;
 
-import com.changeit.wmpolyfill.*;
+import com.changeit.wmpolyfill.Cordova3WebClient;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
@@ -11,7 +11,7 @@ import org.apache.cordova.CordovaWebView;
  */
 public class MultiTouchView extends CordovaPlugin {
 
-    private CordovaWebClient wmp;
+    private Cordova3WebClient wmp;
 
     /**
      * Sets the context of the Command. This can then be used to do things like
@@ -24,6 +24,6 @@ public class MultiTouchView extends CordovaPlugin {
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
 
-        wmp = new CordovaWebClient(cordova, webView);
+        wmp = new Cordova3WebClient(cordova, webView);
     }
 }

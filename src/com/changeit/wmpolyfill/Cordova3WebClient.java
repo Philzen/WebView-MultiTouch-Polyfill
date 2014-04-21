@@ -20,11 +20,12 @@
 package com.changeit.wmpolyfill;
 
 import android.webkit.WebView;
+import org.apache.cordova.CordovaActivity;
 import org.apache.cordova.CordovaChromeClient;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.CordovaWebViewClient;
 import org.apache.cordova.DroidGap;
-import org.apache.cordova.api.CordovaInterface;
+import org.apache.cordova.CordovaInterface;
 
 /**
 * Phonegap 1.9+ compatible version of the WMP (won't compile before 1.9!)
@@ -37,7 +38,7 @@ import org.apache.cordova.api.CordovaInterface;
 * </pre>
 *	@author philzen
 */
-public class CordovaWebClient extends CordovaWebViewClient {
+public class Cordova3WebClient extends CordovaWebViewClient {
 
 	WebClient wmp;
 
@@ -46,15 +47,15 @@ public class CordovaWebClient extends CordovaWebViewClient {
 	 * @param cordova
 	 * @param view
 	 */
-	public CordovaWebClient(CordovaInterface cordova, CordovaWebView view) {
+	public Cordova3WebClient(CordovaInterface cordova, CordovaWebView view) {
 		super(cordova, view);
 
-		DroidGap droidGap = (DroidGap)cordova;
+		CordovaActivity activity = (CordovaActivity)cordova;
 
 		if (view == null) {
 // 			android.util.Log.d("polyfill", "CordovaWebClient: Creating View!");
-			view = new CordovaWebView(droidGap);
-			droidGap.init( view, this, new CordovaChromeClient(cordova) );
+			view = new CordovaWebView(activity);
+			activity.init( view, this, new CordovaChromeClient(cordova) );
 		}
 
 		wmp = new WebClient(view);
@@ -94,7 +95,7 @@ public class CordovaWebClient extends CordovaWebViewClient {
 	 * @param polyfillAllTouches
 	 * @return Fluid Interface
 	 */
-	public CordovaWebClient setPolyfillAllTouches(boolean polyfillAllTouches) {
+	public Cordova3WebClient setPolyfillAllTouches(boolean polyfillAllTouches) {
 		wmp.setPolyfillAllTouches(polyfillAllTouches);
 		return this;
 	}
