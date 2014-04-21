@@ -10,7 +10,7 @@
         <clobbers target="multitouch" />
     </js-module>
     <platform name="android">
-        <config-file target="config.xml" parent="/*">
+        <config-file target="res/xml/config.xml" parent="/*">
             <feature name="MultiTouchAndroid2">
                 <param name="android-package" value="org.changeit.android2.MultiTouchView" />
                 <param name="onload" value="true" />
