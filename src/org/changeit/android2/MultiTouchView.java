@@ -1,5 +1,5 @@
 
-package org.changeit.android2.multitouch;
+package org.changeit.android2;
 
 import com.changeit.wmpolyfill.*;
 import org.apache.cordova.CordovaInterface;
