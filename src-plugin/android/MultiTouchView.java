@@ -20,6 +20,7 @@ public class MultiTouchView extends CordovaPlugin {
      * @param cordova The context of the main Activity.
      * @param webView The CordovaWebView Cordova is running in.
      */
+    @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
 
