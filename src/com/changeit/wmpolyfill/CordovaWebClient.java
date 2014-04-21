@@ -24,7 +24,7 @@ import org.apache.cordova.CordovaChromeClient;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.CordovaWebViewClient;
 import org.apache.cordova.DroidGap;
-import org.apache.cordova.api.CordovaInterface;
+import org.apache.cordova.CordovaInterface;
 
 /**
 * Phonegap 1.9+ compatible version of the WMP (won't compile before 1.9!)
