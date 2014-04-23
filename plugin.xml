@@ -18,7 +18,6 @@
         </config-file>
 
         <source-file src="src/com/changeit/wmpolyfill/WebClient.java" target-dir="src/com/changeit/wmpolyfill" />
-        <source-file src="src/com/changeit/wmpolyfill/WebClientTouchUpdater.java" target-dir="src/com/changeit/wmpolyfill" />
         <source-file src="src/com/changeit/wmpolyfill/Cordova3WebClient.java" target-dir="src/com/changeit/wmpolyfill" />
         <source-file src="src/org/changeit/android2/MultiTouchView.java" target-dir="src/org/changeit/android2" />
     </platform>
