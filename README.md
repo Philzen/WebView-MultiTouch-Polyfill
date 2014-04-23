@@ -13,12 +13,12 @@ This piece of code is for you, if
 
 ### Cordova 3.x
 
-#### `cordova plugin add https://github.com/Philzen/WebView-MultiTouch-Polyfill`
+##### `cordova plugin add https://github.com/Philzen/WebView-MultiTouch-Polyfill`
 
 That's it - without further ado, any 2nd, 3rd, whatever other touch your device understands
 will be polyfilled in your `(Cordova)WebView` when running on android 2.x
 
-### Custom webview projects / cordova 1.9
+### Custom webview projects / cordova 1.9+
 
 Grab the latest release version from https://github.com/Philzen/WebView-MultiTouch-Polyfill/tags
 
