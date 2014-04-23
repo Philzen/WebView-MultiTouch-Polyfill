@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         id="org.changeit.android2.multitouch" version="0.0.1">
     <name>MultiTouchAndroid2</name>
-    <description>Enable Multitouch gestures on Android 2.2+ [Based on WebView-MultiTouch-Polyfil]</description>
+    <description>Enable Multitouch gestures on Android 2.2+ [Based on WebView-MultiTouch-Polyfill]</description>
     <name>Android 2.2+ Multitouch</name>
     <license>Apache 2.0</license>
     <keywords>cordova,multitouch,gingerbread,froyo</keywords>
@@ -10,7 +10,7 @@
         <clobbers target="multitouch" />
     </js-module>
     <platform name="android">
-        <config-file target="config.xml" parent="/*">
+        <config-file target="res/xml/config.xml" parent="/*">
             <feature name="MultiTouchAndroid2">
                 <param name="android-package" value="org.changeit.android2.MultiTouchView" />
                 <param name="onload" value="true" />
@@ -19,7 +19,7 @@
 
         <source-file src="src/com/changeit/wmpolyfill/WebClient.java" target-dir="src/com/changeit/wmpolyfill" />
         <source-file src="src/com/changeit/wmpolyfill/WebClientTouchUpdater.java" target-dir="src/com/changeit/wmpolyfill" />
-        <source-file src="src/com/changeit/wmpolyfill/CordovaWebClient.java" target-dir="src/com/changeit/wmpolyfill" />
+        <source-file src="src/com/changeit/wmpolyfill/Cordova3WebClient.java" target-dir="src/com/changeit/wmpolyfill" />
         <source-file src="src/org/changeit/android2/MultiTouchView.java" target-dir="src/org/changeit/android2" />
     </platform>
 </plugin>
