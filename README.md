@@ -47,9 +47,10 @@ This solution was tested with Phonegap 1.8.1 and should work with many earlier v
 
 ### Options
 
-* setPolyfillAllTouches (Boolean)    [default: `false`]
-    Per default WMP won't do anything to single hand gestures in order not to interfere with varying event implementations on different devices. If you set this value to `true`, all touches on the webview will be intercepted and emulated in the polyfill.
-	NOTE: The polyfill won't interfere with any touches (basically it will be inactive) if the API Level is 11 or higher (= devices running Android 3+)
+##### `Boolean` setPolyfillAllTouches [default: `false`] 
+
+  By default WMP won't do anything to single hand gestures in order not to interfere with varying event implementations on different devices. If you set this value to `true`, all touches on the webview will be intercepted and emulated in the polyfill.  
+  NOTE: The polyfill won't interfere with any touches (basically it will be inactive) if the API Level is 11 or higher (= devices running Android 3+)
 
 
 ### Demo
@@ -60,11 +61,15 @@ Full source code found [here on github](https://github.com/Philzen/Webview-Multi
 
 ### Miscellaneous
 
-* You can help the project by
-    1. adding your device details to the [tested device list](https://github.com/Philzen/WebView-MultiTouch-Polyfill/wiki/Device-Chart) - if at least the demo app works for your device
-    2. not hesitating to [report any issues](https://github.com/Philzen/WebView-MultiTouch-Polyfill/issues) WMP-specific issues you may encounter on your device and/or app
-* Visit [the wiki] (https://github.com/Philzen/WebView-MultiTouch-Polyfill/wiki) for further information and ongoing development updates.
+#### Help Testing
 
+1. *USE IT*... and add your device details to the [tested device list](https://github.com/Philzen/WebView-MultiTouch-Polyfill/wiki/Device-Chart) - if at least the demo app works for your device
+2. don't hesitate to [report any WMP-related issues](https://github.com/Philzen/WebView-MultiTouch-Polyfill/issues) you may encounter on your device and/or app  
+
+
+#### Help Hacking [![Stories in Ready](https://badge.waffle.io/philzen/webview-multitouch-polyfill.png?label=ready&title=Ready)](https://waffle.io/philzen/webview-multitouch-polyfill)  
+
+Preferable pick issues in "ready" status on the [waffle.io board](https://badge.waffle.io/philzen/webview-multitouch-polyfill.png), but of course you are welcome to work on any other issues and send in pull requests for other cool new features & fixes unthought of so far.
 
 ### Licence Information
 The author of this repository strongly sympathises with the "Non-Military Use Only" Licence model. However, since it poses a logical contradiction of the open source definition, all rights are hereby granted under the Apache licence:
